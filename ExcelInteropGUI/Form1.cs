@@ -24,18 +24,31 @@ namespace ExcelInteropGUI
         {
             try
             {
-                Application Excelapp = new Application();
-                Excelapp.Visible = true;
-                Workbook WB = Excelapp.Workbooks.Add();
-                Worksheet WS = (Worksheet)WB.Sheets[1];
-
-                WS.Cells[1,1].Value = "Clicked";
-                Debug.WriteLine("Clicked");
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Title = "Select Excel File";
+                ofd.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.csv)|*.xls;*.xlsx;*.xlsm;*.csv";
+                if(ofd.ShowDialog() == DialogResult.OK)
+                {
+                    string fp = ofd.FileName;
+                    MessageBox.Show(fp);
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            MachineName.Items.Add("Komatsu");
+            MachineName.Items.Add("Mitsubishi");
+            MachineName.Items.Add("Astes");
+        }
+
+        private void MachineName_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
         }
     }
