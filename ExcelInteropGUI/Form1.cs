@@ -20,6 +20,7 @@ namespace ExcelInteropGUI
     public partial class Form1 : Form
     {
         OpenFileDialog ofd = new OpenFileDialog();
+        System.Data.DataTable EditData = new System.Data.DataTable();
         public Form1()
         {
             InitializeComponent();
@@ -83,8 +84,7 @@ namespace ExcelInteropGUI
                             }
                         }
                     }
-                    Debug.WriteLine(CellAddr.Count);
-                    System.Data.DataTable EditData = new System.Data.DataTable();
+                    //Debug.WriteLine(CellAddr.Count);
                     for(int MakeCol =1; MakeCol<=lastCol;MakeCol++)
                     {
                         EditData.Columns.Add(sheet.Cell(1, MakeCol).Value.ToString());
@@ -98,7 +98,7 @@ namespace ExcelInteropGUI
                         }
                         EditData.Rows.Add(row);
                     }
-                    EditTable.DataSource = EditData;
+
                 }
             }
         }
@@ -109,6 +109,13 @@ namespace ExcelInteropGUI
         private void MachineName_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void EditButton_Click(object sender, EventArgs e)
+        {
+            EditWin editwin = new EditWin();
+            editwin.EditData = EditData;
+            editwin.Show();
         }
     }
 }
