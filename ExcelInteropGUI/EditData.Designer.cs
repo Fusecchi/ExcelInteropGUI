@@ -35,7 +35,7 @@
             // EditTable
             // 
             this.EditTable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.EditTable.Location = new System.Drawing.Point(162, 110);
+            this.EditTable.Location = new System.Drawing.Point(12, 12);
             this.EditTable.Name = "EditTable";
             this.EditTable.RowHeadersWidth = 51;
             this.EditTable.RowTemplate.Height = 24;

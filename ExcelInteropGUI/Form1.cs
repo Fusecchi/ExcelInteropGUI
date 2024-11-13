@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Office2016.Drawing.Command;
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace ExcelInteropGUI
 {
@@ -21,12 +22,14 @@ namespace ExcelInteropGUI
     {
         OpenFileDialog ofd = new OpenFileDialog();
         System.Data.DataTable EditData = new System.Data.DataTable();
+        int selectedSheet =1;
+        IXLWorksheet From, To;
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void SendButton_Click(object sender, EventArgs e)
+        private void SelectData_Click(object sender, EventArgs e)
         {
             try
             {
@@ -60,6 +63,7 @@ namespace ExcelInteropGUI
                 using (var workbook = new XLWorkbook(fp))
                 {
                     var sheet = workbook.Worksheet(1);
+                    From = sheet;
                     var lastRow = sheet.LastRowUsed().RowNumber();
                     var lastCol = sheet.LastColumnUsed().ColumnNumber();
                     var DataRange = sheet.Range(2, 1, lastRow, lastCol);
@@ -116,6 +120,50 @@ namespace ExcelInteropGUI
             EditWin editwin = new EditWin();
             editwin.EditData = EditData;
             editwin.Show();
+        }
+
+        private void SelectSheet_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SelectTarget_Click(object sender, EventArgs e)
+        {
+            ofd.Title = "Select Excel File";
+            ofd.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.csv)|*.xls;*.xlsx;*.xlsm;*.csv";
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                TargetFile();
+            }
+        }
+
+        private void TargetFile()
+        {
+            string Tp = ofd.FileName;
+            string Tn = Path.GetFileName(Tp);
+            if (!string.IsNullOrEmpty(Tp)) 
+            {
+                TargetName.Text = Tn;
+                using(var PasteBook = new XLWorkbook(Tp))
+                {
+                    foreach(var Sheet in PasteBook.Worksheets)
+                    {
+                        TargetSheet.Items.Add(Sheet);
+                    }
+                    var PasteSheet = PasteBook.Worksheet(selectedSheet);
+                    To = PasteSheet;
+                }
+            }
+        }
+
+        private void TargetSheet_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selectedSheet = TargetSheet.SelectedIndex;
+        }
+
+        private void SendButton_Click(object sender, EventArgs e)
+        {
+            To.Cell(17, 3).Value = From.Cell(2, 4).Value;
         }
     }
 }
