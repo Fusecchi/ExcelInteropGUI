@@ -1,5 +1,4 @@
-﻿using Microsoft.Office.Interop.Excel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,9 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClosedXML.Excel;
+using System.Xml;
 using DocumentFormat.OpenXml.Office2016.Drawing.Command;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ExcelInteropGUI
 {
@@ -25,7 +26,7 @@ namespace ExcelInteropGUI
         int selectedSheet =1;
         IXLWorksheet From, To,sheet, ToSheet;
         XLWorkbook workbook, PasteBook;
-
+        string ConvertFromCSV;
         public Form1()
         {
             InitializeComponent();
@@ -41,17 +42,50 @@ namespace ExcelInteropGUI
                 {
                     LoadData();
                 }
-            }
+        }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
 
-        }
+}
 
         private void Form1_Load(object sender, EventArgs e)
         {
             LoadData();
+        }
+        private void CSVConvert()
+        {
+            var dataTable = new System.Data.DataTable();
+            using (StreamReader stream = new StreamReader(ofd.FileName, Encoding.GetEncoding("shift-jis"))) 
+            { //please change ofd.filename
+                string HeaderLine = stream.ReadLine();
+                if (HeaderLine != null) 
+                {
+                    string[] headers = HeaderLine.Split(',');
+                    foreach (string header in headers) 
+                    {
+                        dataTable.Columns.Add(header.Trim());
+                    }
+                    while (!stream.EndOfStream)
+                    {
+                        string[] values = stream.ReadLine().Split(',');
+                        dataTable.Rows.Add(values);
+                    }
+                    
+                }
+                
+            }
+            using (var workbook = new XLWorkbook()) 
+            {
+                var worksheet = workbook.Worksheets.Add("sheet1");
+                worksheet.Cell(1, 1).InsertTable(dataTable);
+                string FilePath = Path.ChangeExtension(ofd.FileName, ".xlsx");
+                workbook.SaveAs(FilePath);
+                ConvertFromCSV = FilePath;
+            }
+
+
         }
 
         private void LoadData()
@@ -61,6 +95,11 @@ namespace ExcelInteropGUI
             //Debug.WriteLine(fp);
             if (!string.IsNullOrEmpty(fp))
             {
+                if (fp.EndsWith(".csv"))
+                {
+                    CSVConvert();
+                    fp = ConvertFromCSV;
+                }
                 FileName.Text = fn;
                 workbook = new XLWorkbook(fp);
                 workbook.CalculateMode = XLCalculateMode.Manual;
@@ -106,13 +145,14 @@ namespace ExcelInteropGUI
                     }
                     EditData.Rows.Add(row);
                 }
-
+                
 
 
             }
         }
         private void reset()
         {
+            XmlDocument xmlDocument = new XmlDocument();
 
         }
         private void MachineName_SelectedIndexChanged(object sender, EventArgs e)
@@ -128,6 +168,11 @@ namespace ExcelInteropGUI
         }
 
         private void SelectSheet_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
 
         }
