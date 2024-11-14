@@ -23,7 +23,9 @@ namespace ExcelInteropGUI
         OpenFileDialog ofd = new OpenFileDialog();
         System.Data.DataTable EditData = new System.Data.DataTable();
         int selectedSheet =1;
-        IXLWorksheet From, To;
+        IXLWorksheet From, To,sheet, ToSheet;
+        XLWorkbook workbook, PasteBook;
+
         public Form1()
         {
             InitializeComponent();
@@ -60,50 +62,53 @@ namespace ExcelInteropGUI
             if (!string.IsNullOrEmpty(fp))
             {
                 FileName.Text = fn;
-                using (var workbook = new XLWorkbook(fp))
+                workbook = new XLWorkbook(fp);
+                workbook.CalculateMode = XLCalculateMode.Manual;
+                sheet = workbook.Worksheet(1);
+                From = sheet;
+                var lastRow = sheet.LastRowUsed().RowNumber();
+                var lastCol = sheet.LastColumnUsed().ColumnNumber();
+                var DataRange = sheet.Range(2, 1, lastRow, lastCol);
+                for (int i = 0; i < lastRow - 1; i++)
                 {
-                    var sheet = workbook.Worksheet(1);
-                    From = sheet;
-                    var lastRow = sheet.LastRowUsed().RowNumber();
-                    var lastCol = sheet.LastColumnUsed().ColumnNumber();
-                    var DataRange = sheet.Range(2, 1, lastRow, lastCol);
-                    for (int i = 0; i < lastRow-1; i++) {
-                        if (!sheet.Cell(2, 1).Value.Equals(sheet.Cell(2+i,1).Value))
-                        {
-                            MessageBox.Show($"Cell in: {sheet.Cell(2 + i, 1)} has value of: {sheet.Cell(2+i,1).Value}");
-                            fp = null;
-                            FileName.Text = null;
-                            return;
-                        }
-                    }
-                    FileType.Text = sheet.Cell(2,1).Value.ToString();
-                    var CellAddr = new List<int>();
-                    foreach (var cell in DataRange.Cells())
+                    if (!sheet.Cell(2, 1).Value.Equals(sheet.Cell(2 + i, 1).Value))
                     {
-                        if (cell.Value.Equals(0) || cell.IsEmpty())
-                        {
-                            //Debug.WriteLine(cell.Address.RowNumber);
-                            if (!CellAddr.Contains(cell.Address.RowNumber)){
-                                CellAddr.Add(cell.Address.RowNumber);
-                            }
-                        }
+                        MessageBox.Show($"Cell in: {sheet.Cell(2 + i, 1)} has value of: {sheet.Cell(2 + i, 1).Value}");
+                        fp = null;
+                        FileName.Text = null;
+                        return;
                     }
-                    //Debug.WriteLine(CellAddr.Count);
-                    for(int MakeCol =1; MakeCol<=lastCol;MakeCol++)
-                    {
-                        EditData.Columns.Add(sheet.Cell(1, MakeCol).Value.ToString());
-                    }
-                    foreach (var addr in CellAddr)
-                    {
-                        DataRow row = EditData.NewRow();
-                        for (int i = 0; i < lastCol; i++)
-                        {
-                            row[i] = sheet.Cell(addr, i+1).Value;
-                        }
-                        EditData.Rows.Add(row);
-                    }
-
                 }
+                FileType.Text = sheet.Cell(2, 1).Value.ToString();
+                var CellAddr = new List<int>();
+                foreach (var cell in DataRange.Cells())
+                {
+                    if (cell.Value.Equals(0) || cell.IsEmpty())
+                    {
+                        //Debug.WriteLine(cell.Address.RowNumber);
+                        if (!CellAddr.Contains(cell.Address.RowNumber))
+                        {
+                            CellAddr.Add(cell.Address.RowNumber);
+                        }
+                    }
+                }
+                //Debug.WriteLine(CellAddr.Count);
+                for (int MakeCol = 1; MakeCol <= lastCol; MakeCol++)
+                {
+                    EditData.Columns.Add(sheet.Cell(1, MakeCol).Value.ToString());
+                }
+                foreach (var addr in CellAddr)
+                {
+                    DataRow row = EditData.NewRow();
+                    for (int i = 0; i < lastCol; i++)
+                    {
+                        row[i] = sheet.Cell(addr, i + 1).Value;
+                    }
+                    EditData.Rows.Add(row);
+                }
+
+
+
             }
         }
         private void reset()
@@ -143,27 +148,47 @@ namespace ExcelInteropGUI
             string Tn = Path.GetFileName(Tp);
             if (!string.IsNullOrEmpty(Tp)) 
             {
+                PasteBook = new XLWorkbook(Tp);
+                PasteBook.CalculateMode = XLCalculateMode.Manual;
                 TargetName.Text = Tn;
-                using(var PasteBook = new XLWorkbook(Tp))
+                foreach(var Sheet in PasteBook.Worksheets)
                 {
-                    foreach(var Sheet in PasteBook.Worksheets)
-                    {
-                        TargetSheet.Items.Add(Sheet);
-                    }
-                    var PasteSheet = PasteBook.Worksheet(selectedSheet);
-                    To = PasteSheet;
+                    TargetSheet.Items.Add(Sheet);
                 }
+                TargetSheet.SelectedIndex = 0;
+
+                
             }
         }
 
         private void TargetSheet_SelectedIndexChanged(object sender, EventArgs e)
         {
             selectedSheet = TargetSheet.SelectedIndex;
+            ToSheet = PasteBook.Worksheet(selectedSheet+1);
+            To = ToSheet;
+            //MessageBox.Show($"Selected {selectedSheet}");
         }
 
         private void SendButton_Click(object sender, EventArgs e)
         {
-            To.Cell(17, 3).Value = From.Cell(2, 4).Value;
+            //MessageBox.Show($"Sending To {To} Chosed: {ToSheet}");
+            var LastRowTo = To.LastRowUsed().RowNumber();
+            for(var row = 0; row< LastRowTo; row++)
+            {
+                To.Cell(17 + row, 3).Value = From.Cell(2+row, 4).Value; //板厚
+                To.Cell(17 + row, 7).Value = From.Cell(2 + row, 5).Value; //寸法W
+                To.Cell(17 + row, 8).Value = From.Cell(2 + row, 6).Value; //寸法H
+                To.Cell(17 + row, 14).Value = From.Cell(2 + row, 7).Value; //歩留
+                string CleanTimeData = From.Cell(2 + row, 9).Value.ToString();
+                var CharToRemove = "()（）分";
+                foreach(char c in CharToRemove)
+                {
+                    CleanTimeData = CleanTimeData.Replace(c.ToString(), "");
+                }
+                To.Cell(17 + row, 12).Value = CleanTimeData; //三菱加工時間
+            }
+            PasteBook.Save();
+            MessageBox.Show($"Sending {To} to {From}Complete");
         }
     }
 }
