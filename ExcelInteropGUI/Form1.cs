@@ -16,17 +16,21 @@ using DocumentFormat.OpenXml.Office2016.Drawing.Command;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
+using static ClosedXML.Excel.XLPredefinedFormat;
 
 namespace ExcelInteropGUI
 {
     public partial class Form1 : Form
     {
         OpenFileDialog ofd = new OpenFileDialog();
-        System.Data.DataTable EditData = new System.Data.DataTable();
+        System.Data.DataTable EditData { get; set; } = new System.Data.DataTable();
+        System.Data.DataTable TempTableToConvert = new System.Data.DataTable();
         int selectedSheet =1;
         IXLWorksheet From, To,sheet, ToSheet;
         XLWorkbook workbook, PasteBook;
         string ConvertFromCSV;
+        bool Converted;
+        List<int> CellAddr = new List<int>();
         public Form1()
         {
             InitializeComponent();
@@ -56,7 +60,6 @@ namespace ExcelInteropGUI
         }
         private void CSVConvert()
         {
-            var dataTable = new System.Data.DataTable();
             using (StreamReader stream = new StreamReader(ofd.FileName, Encoding.GetEncoding("shift-jis"))) 
             { //please change ofd.filename
                 string HeaderLine = stream.ReadLine();
@@ -65,12 +68,12 @@ namespace ExcelInteropGUI
                     string[] headers = HeaderLine.Split(',');
                     foreach (string header in headers) 
                     {
-                        dataTable.Columns.Add(header.Trim());
+                        TempTableToConvert.Columns.Add(header.Trim());
                     }
                     while (!stream.EndOfStream)
                     {
                         string[] values = stream.ReadLine().Split(',');
-                        dataTable.Rows.Add(values);
+                        TempTableToConvert.Rows.Add(values);
                     }
                     
                 }
@@ -79,12 +82,12 @@ namespace ExcelInteropGUI
             using (var workbook = new XLWorkbook()) 
             {
                 var worksheet = workbook.Worksheets.Add("sheet1");
-                worksheet.Cell(1, 1).InsertTable(dataTable);
+                worksheet.Cell(1, 1).InsertTable(TempTableToConvert);
                 string FilePath = Path.ChangeExtension(ofd.FileName, ".xlsx");
                 workbook.SaveAs(FilePath);
                 ConvertFromCSV = FilePath;
             }
-
+            Converted = true;
 
         }
 
@@ -118,38 +121,39 @@ namespace ExcelInteropGUI
                         return;
                     }
                 }
-                FileType.Text = sheet.Cell(2, 1).Value.ToString();
-                var CellAddr = new List<int>();
-                foreach (var cell in DataRange.Cells())
-                {
-                    if (cell.Value.Equals(0) || cell.IsEmpty())
-                    {
-                        //Debug.WriteLine(cell.Address.RowNumber);
-                        if (!CellAddr.Contains(cell.Address.RowNumber))
-                        {
-                            CellAddr.Add(cell.Address.RowNumber);
-                        }
-                    }
-                }
-                //Debug.WriteLine(CellAddr.Count);
-                for (int MakeCol = 1; MakeCol <= lastCol; MakeCol++)
-                {
-                    EditData.Columns.Add(sheet.Cell(1, MakeCol).Value.ToString());
-                }
-                foreach (var addr in CellAddr)
-                {
-                    DataRow row = EditData.NewRow();
-                    for (int i = 0; i < lastCol; i++)
-                    {
-                        row[i] = sheet.Cell(addr, i + 1).Value;
-                    }
-                    EditData.Rows.Add(row);
-                }
-                
-
-
+                FileType.Text = sheet.Cell(2, 1).Value.ToString();                
+                DetectBlank(DataRange,lastCol);
             }
         }
+        private void DetectBlank(IXLRange DataRange, int lastCol)
+        {
+            foreach (var cell in DataRange.Cells())
+            {
+                if (cell.Value.Equals(0) || cell.IsEmpty())
+                {
+                    //Debug.WriteLine(cell.Address.RowNumber);
+                    if (!CellAddr.Contains(cell.Address.RowNumber))
+                    {
+                        CellAddr.Add(cell.Address.RowNumber);
+                    }
+                }
+            }
+            //Debug.WriteLine(CellAddr.Count);
+            for (int MakeCol = 1; MakeCol <= lastCol; MakeCol++)
+            {
+                EditData.Columns.Add(sheet.Cell(1, MakeCol).Value.ToString());
+            }
+            foreach (var addr in CellAddr)
+            {
+                DataRow row = EditData.NewRow();
+                for (int i = 0; i < lastCol; i++)
+                {
+                    row[i] = sheet.Cell(addr, i + 1).Value;
+                }
+                EditData.Rows.Add(row);
+            }
+        }
+
         private void reset()
         {
             XmlDocument xmlDocument = new XmlDocument();
@@ -162,9 +166,56 @@ namespace ExcelInteropGUI
 
         private void EditButton_Click(object sender, EventArgs e)
         {
-            EditWin editwin = new EditWin();
-            editwin.EditData = EditData;
-            editwin.Show();
+
+                EditWin editwin = new EditWin();
+                editwin.EditData = EditData;
+                editwin.DataSaved += editwin_Datasaved;
+                editwin.FormClosed += (s, args) => this.Show();
+                editwin.Show();
+                this.Hide();
+
+        }
+        private void editwin_Datasaved(System.Data.DataTable updatedTable)
+        {
+            EditData = updatedTable;
+            List<int> EditedTable = new List<int>();
+            foreach (DataRow row in EditData.Rows) 
+            {
+                foreach (DataColumn col in EditData.Columns) {
+                    if (!EditedTable.Contains(EditData.Rows.IndexOf(row)))
+                    {
+                        //Debug.WriteLine($"Currently on Row: {EditData.Rows.IndexOf(row).ToString()} Col: {EditData.Columns.IndexOf(col)}, Add to List");
+                        EditedTable.Add(EditData.Rows.IndexOf(row));
+                        //Debug.WriteLine("Current List contents: " + string.Join(", ", EditedTable));
+                    }
+                    if (row[col] == DBNull.Value || string.IsNullOrWhiteSpace(row[col].ToString()))
+                    {
+                        //Debug.WriteLine($"Currently on Row: {EditData.Rows.IndexOf(row).ToString()} Col: {EditData.Columns.IndexOf(col)}, Skipped and Removed");
+                        EditedTable.Remove(EditData.Rows.IndexOf(row));
+                        //Debug.WriteLine("Current List contents: " + string.Join(", ", EditedTable));
+                        break ;
+                    }
+                }
+            }
+            //Debug.WriteLine("List contents: " + string.Join(", ", EditedTable));
+            //Debug.WriteLine("Address " + string.Join(", ", CellAddr));
+            foreach (var index in EditedTable)
+            {
+                foreach(DataColumn colins in EditData.Columns) 
+                {
+                    //Debug.WriteLine(EditData.Rows[index][colins]?.ToString());
+                    var x = CellAddr[index];
+                    var y = EditData.Columns.IndexOf(colins)+1;
+                    //Debug.WriteLine($"Value x = {x}, Value y = {y}");
+                    From.Cell(x, y).Value = EditData.Rows[index][colins]?.ToString();
+                }
+            }
+
+            EditedTable.Clear();
+        }
+        private void Editwin_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void SelectSheet_Click(object sender, EventArgs e)
@@ -175,6 +226,17 @@ namespace ExcelInteropGUI
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
 
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (Converted)
+            {
+                if (File.Exists(ConvertFromCSV))
+                {
+                    File.Delete(ConvertFromCSV);
+                }
+            }
         }
 
         private void SelectTarget_Click(object sender, EventArgs e)
@@ -217,7 +279,7 @@ namespace ExcelInteropGUI
         private void SendButton_Click(object sender, EventArgs e)
         {
             //MessageBox.Show($"Sending To {To} Chosed: {ToSheet}");
-            var LastRowTo = To.LastRowUsed().RowNumber();
+            var LastRowTo = From.LastRowUsed().RowNumber();
             for(var row = 0; row< LastRowTo; row++)
             {
                 To.Cell(17 + row, 3).Value = From.Cell(2+row, 4).Value; //板厚
