@@ -64,6 +64,7 @@ namespace ExcelInteropGUI
         private void Form1_Load(object sender, EventArgs e)
         {
             LoadData();
+            SendButton.Enabled = false;
             
         }
         private void CSVConvert()
@@ -348,7 +349,7 @@ namespace ExcelInteropGUI
                     TargetSheet.Items.Add(Sheet);
                 }
                 TargetSheet.SelectedIndex = 0;
-
+                SendButton.Enabled = true;
                 
             }
         }
@@ -392,13 +393,14 @@ namespace ExcelInteropGUI
                             if (cellvalue.Contains(",")) {
                                 cellvalue.Replace(",", ".");
                             }
-                            CSVConv.Append(cellvalue);
+
+                            CSVConv.Append(cellvalue+",");
                         }
                         CSVConv.AppendLine();
                     }
                     string BatchDate = ToSheet.Name;
-                    int dotPos = ConvertFromCSV.LastIndexOf(".");
-                    ConvertFromCSV = ConvertFromCSV.Substring(0, dotPos) + " " + BatchDate + ".CSV";
+                    int dotPos = ConvertFromCSV.LastIndexOf("\\");
+                    ConvertFromCSV = ConvertFromCSV.Substring(0, dotPos) + "\\" + FileType.Text+ " " + BatchDate + ".CSV";
                     File.WriteAllText(ConvertFromCSV, CSVConv.ToString());
 
                 }
