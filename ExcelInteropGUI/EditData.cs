@@ -17,6 +17,7 @@ namespace ExcelInteropGUI
         public DataTable EditData { get; set; }
         public event Action<DataTable> DataSaved;
         public List<(int ChangedRow, int ChangedCol, object ChangedVal)> Log { get; set; } = new List<(int ChangedRow, int ChangedCol, object ChangedVal)> ();
+        public List<object> NewValues { get; set; } = new List<object> ();
         private bool changed;
         public EditWin()
         {
@@ -62,14 +63,12 @@ namespace ExcelInteropGUI
         private void EditTable_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             changed = true;
-            if (e.ColumnIndex > 0 && e.RowIndex > 0) 
-            {
-                
-            }
+            NewValues.Add(EditData.Rows[e.RowIndex][e.ColumnIndex]);
         }
 
         private void EditWin_FormClosing(object sender, FormClosingEventArgs e)
         {
+
             if (changed) 
             {
                 DialogResult ConfirmExit =  MessageBox.Show("Any Change won't be Saved",
@@ -106,7 +105,12 @@ namespace ExcelInteropGUI
 
         private void LogButton_Click(object sender, EventArgs e)
         {
-
+            EditLog editLog = new EditLog();
+            editLog.Log = Log;
+            editLog.NewValues = NewValues;
+            editLog.Show();
+            editLog.FormClosed += (s, args) => this.Show();
+            this.Hide();
         }
     }
 }

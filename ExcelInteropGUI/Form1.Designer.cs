@@ -117,7 +117,6 @@
             this.SelectSheet.TabIndex = 9;
             this.SelectSheet.Text = "Select Sheet";
             this.SelectSheet.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.SelectSheet.Click += new System.EventHandler(this.SelectSheet_Click);
             // 
             // TargetSheet
             // 
@@ -166,7 +165,6 @@
             this.Controls.Add(this.SelectData);
             this.Name = "Form1";
             this.Text = "Form1";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
