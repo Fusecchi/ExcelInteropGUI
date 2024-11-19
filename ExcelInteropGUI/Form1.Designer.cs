@@ -38,6 +38,7 @@
             this.SelectSheet = new System.Windows.Forms.Label();
             this.TargetSheet = new System.Windows.Forms.ComboBox();
             this.TargetName = new System.Windows.Forms.TextBox();
+            this.ResetButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // SelectData
@@ -137,11 +138,22 @@
             this.TargetName.Size = new System.Drawing.Size(196, 22);
             this.TargetName.TabIndex = 11;
             // 
+            // ResetButton
+            // 
+            this.ResetButton.Location = new System.Drawing.Point(598, 232);
+            this.ResetButton.Name = "ResetButton";
+            this.ResetButton.Size = new System.Drawing.Size(78, 23);
+            this.ResetButton.TabIndex = 12;
+            this.ResetButton.Text = "Reset";
+            this.ResetButton.UseVisualStyleBackColor = true;
+            this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.ResetButton);
             this.Controls.Add(this.TargetName);
             this.Controls.Add(this.TargetSheet);
             this.Controls.Add(this.SelectSheet);
@@ -174,6 +186,7 @@
         private System.Windows.Forms.Label SelectSheet;
         private System.Windows.Forms.ComboBox TargetSheet;
         private System.Windows.Forms.TextBox TargetName;
+        private System.Windows.Forms.Button ResetButton;
     }
 }
 

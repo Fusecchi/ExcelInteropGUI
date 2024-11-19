@@ -16,6 +16,7 @@ namespace ExcelInteropGUI
     {
         public DataTable EditData { get; set; }
         public event Action<DataTable> DataSaved;
+        public List<(int ChangedRow, int ChangedCol, object ChangedVal)> Log { get; set; } = new List<(int ChangedRow, int ChangedCol, object ChangedVal)> ();
         private bool changed;
         public EditWin()
         {
@@ -35,8 +36,11 @@ namespace ExcelInteropGUI
             EditTable.PerformLayout();
             int newWidth = EditTable.Width+700;
             int newHeight = EditTable.Height;
-            SaveEdit.Location = new Point(newWidth+20, SaveEdit.Location.X);
+            SaveEdit.Location = new Point(newWidth+20, SaveEdit.Location.Y);
+            LogButton.Location = new Point(newWidth + 20, LogButton.Location.Y);
+            CLoseButton.Location = new Point(newWidth + 20, CLoseButton.Location.Y);
             //Debug.WriteLine($"current pos : ${SaveEdit.Location}");
+            //Debug.WriteLine($"current pos : ${CLoseButton.Location}");
             //Debug.WriteLine($"The Height: { newHeight} The Width:{newWidth}");
 
             this.ClientSize = new Size(SaveEdit.Location.X+130, EditTable.Size.Height);
@@ -74,6 +78,10 @@ namespace ExcelInteropGUI
                     MessageBoxIcon.Warning);
                 switch (ConfirmExit) { 
                     case DialogResult.Yes:
+                        foreach(var RollBack in Log)
+                        {
+                            EditData.Rows[RollBack.ChangedRow][RollBack.ChangedCol] = RollBack.ChangedVal;
+                        }
                         break;
                     case DialogResult.No:
                         SaveEdit_Click(sender, e);
@@ -84,6 +92,21 @@ namespace ExcelInteropGUI
                     
                 }
             }
+        }
+
+        private void EditTable_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            Log.Add((e.RowIndex, e.ColumnIndex, EditData.Rows[e.RowIndex][e.ColumnIndex]));
+        }
+
+        private void CLoseButton_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void LogButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

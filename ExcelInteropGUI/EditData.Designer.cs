@@ -30,6 +30,8 @@
         {
             this.EditTable = new System.Windows.Forms.DataGridView();
             this.SaveEdit = new System.Windows.Forms.Button();
+            this.CLoseButton = new System.Windows.Forms.Button();
+            this.LogButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.EditTable)).BeginInit();
             this.SuspendLayout();
             // 
@@ -42,6 +44,7 @@
             this.EditTable.RowTemplate.Height = 24;
             this.EditTable.Size = new System.Drawing.Size(477, 230);
             this.EditTable.TabIndex = 6;
+            this.EditTable.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.EditTable_CellBeginEdit);
             this.EditTable.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.EditTable_CellContentClick);
             this.EditTable.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.EditTable_CellValueChanged);
             // 
@@ -55,11 +58,33 @@
             this.SaveEdit.UseVisualStyleBackColor = true;
             this.SaveEdit.Click += new System.EventHandler(this.SaveEdit_Click);
             // 
+            // CLoseButton
+            // 
+            this.CLoseButton.Location = new System.Drawing.Point(12, 160);
+            this.CLoseButton.Name = "CLoseButton";
+            this.CLoseButton.Size = new System.Drawing.Size(150, 50);
+            this.CLoseButton.TabIndex = 9;
+            this.CLoseButton.Text = "Close";
+            this.CLoseButton.UseVisualStyleBackColor = true;
+            this.CLoseButton.Click += new System.EventHandler(this.CLoseButton_Click);
+            // 
+            // LogButton
+            // 
+            this.LogButton.Location = new System.Drawing.Point(12, 84);
+            this.LogButton.Name = "LogButton";
+            this.LogButton.Size = new System.Drawing.Size(150, 50);
+            this.LogButton.TabIndex = 10;
+            this.LogButton.Text = "Log";
+            this.LogButton.UseVisualStyleBackColor = true;
+            this.LogButton.Click += new System.EventHandler(this.LogButton_Click);
+            // 
             // EditWin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.LogButton);
+            this.Controls.Add(this.CLoseButton);
             this.Controls.Add(this.SaveEdit);
             this.Controls.Add(this.EditTable);
             this.Name = "EditWin";
@@ -76,5 +101,7 @@
 
         private System.Windows.Forms.DataGridView EditTable;
         private System.Windows.Forms.Button SaveEdit;
+        private System.Windows.Forms.Button CLoseButton;
+        private System.Windows.Forms.Button LogButton;
     }
 }
