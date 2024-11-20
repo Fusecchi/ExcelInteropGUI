@@ -17,6 +17,7 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using static ClosedXML.Excel.XLPredefinedFormat;
+using System.Threading;
 
 namespace ExcelInteropGUI
 {
@@ -38,13 +39,15 @@ namespace ExcelInteropGUI
         //Cell address of the Blank FIle
         List<int> CellAddr = new List<int>();
         int DataChecker, TargetType;
+        
+
+
         public Form1()
         {
             InitializeComponent();
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            LoadData();
             SendButton.Enabled = false;
             EditButton.Enabled = false;
             
@@ -57,7 +60,10 @@ namespace ExcelInteropGUI
                 ofd.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.csv)|*.xls;*.xlsx;*.xlsm;*.csv";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    LoadData();
+                    using (LoadingBar load = new LoadingBar(LoadData))
+                    {
+                        load.ShowDialog(this);
+                    }
                 }
             }
             catch (Exception ex)
@@ -67,6 +73,8 @@ namespace ExcelInteropGUI
             }
 
         }
+
+
         private void SelectTarget_Click(object sender, EventArgs e)
         {
             try
@@ -193,7 +201,8 @@ namespace ExcelInteropGUI
         }
         private void LoadData()
         {
-            ResetData();
+
+            //ResetData();
             //The File Path of the selected file
             string fp = ofd.FileName;
             //The File Name of the file
@@ -207,7 +216,19 @@ namespace ExcelInteropGUI
                     fp = ConvertFromCSV;
                 }
                 //Setup for the Workbook Data
-                FileName.Text = fn;
+                if (FileName.InvokeRequired)
+                {
+                    FileName.Invoke(new Action(() =>
+                    {
+                        FileName.Text = fn;
+                    }));
+                }
+                else
+                {
+                    FileName.Text = fn;
+                }
+                
+                    
                 workbook = new XLWorkbook(fp);
                 workbook.CalculateMode = XLCalculateMode.Manual;
                 sheet = workbook.Worksheet(1);
@@ -222,12 +243,39 @@ namespace ExcelInteropGUI
                     {
                         MessageBox.Show($"Cell in: {sheet.Cell(2 + i, 1)} has value of: {sheet.Cell(2 + i, 1).Value}");
                         fp = null;
-                        FileName.Text = null;
+                        if (FileName.InvokeRequired)
+                        {
+                            FileName.Invoke(new Action(() =>
+                            {
+                                FileName.Text = null;
+                            }
+                            ));
+                        }
+                        else
+                        {
+                            FileName.Text = null;
+                        }
                         return;
                     }
                 }
-                FileType.Text = sheet.Cell(2, 1).Value.ToString();                
+                if (FileType.InvokeRequired)
+                {
+                    FileType.Invoke(new Action(() => FileType.Text = sheet.Cell(2, 1).Value.ToString()
+                    ));
+                }
+                else {
+                    FileType.Text = sheet.Cell(2,1).Value.ToString();
+                }
+              
                 DetectBlank(DataRange,lastCol);
+                if (FileType.InvokeRequired) 
+                {
+                    FileType.Invoke(new Action(() => EditButton.Enabled = CellAddr.Count > 0
+                    ));
+                }
+                else {
+                    EditButton.Enabled = CellAddr.Count > 0;
+                        }
                 EditButton.Enabled = CellAddr.Count > 0;
                 //Check if the the data and the targetfile is the samefile
                 switch (fn.ToUpper())
@@ -418,5 +466,6 @@ namespace ExcelInteropGUI
             TargetName.Clear();
 
         }
+
     }
 }
