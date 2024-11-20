@@ -39,6 +39,8 @@
             this.TargetSheet = new System.Windows.Forms.ComboBox();
             this.TargetName = new System.Windows.Forms.TextBox();
             this.ResetButton = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // SelectData
@@ -80,7 +82,7 @@
             // 
             // EditButton
             // 
-            this.EditButton.Location = new System.Drawing.Point(364, 232);
+            this.EditButton.Location = new System.Drawing.Point(364, 339);
             this.EditButton.Name = "EditButton";
             this.EditButton.Size = new System.Drawing.Size(75, 23);
             this.EditButton.TabIndex = 6;
@@ -90,7 +92,7 @@
             // 
             // SendButton
             // 
-            this.SendButton.Location = new System.Drawing.Point(122, 232);
+            this.SendButton.Location = new System.Drawing.Point(59, 339);
             this.SendButton.Name = "SendButton";
             this.SendButton.Size = new System.Drawing.Size(69, 23);
             this.SendButton.TabIndex = 7;
@@ -139,7 +141,7 @@
             // 
             // ResetButton
             // 
-            this.ResetButton.Location = new System.Drawing.Point(598, 232);
+            this.ResetButton.Location = new System.Drawing.Point(638, 339);
             this.ResetButton.Name = "ResetButton";
             this.ResetButton.Size = new System.Drawing.Size(78, 23);
             this.ResetButton.TabIndex = 12;
@@ -147,11 +149,31 @@
             this.ResetButton.UseVisualStyleBackColor = true;
             this.ResetButton.Click += new System.EventHandler(this.ResetButton_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(48, 156);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(44, 16);
+            this.label1.TabIndex = 13;
+            this.label1.Text = "label1";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(447, 156);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(44, 16);
+            this.label2.TabIndex = 14;
+            this.label2.Text = "label2";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.ResetButton);
             this.Controls.Add(this.TargetName);
             this.Controls.Add(this.TargetSheet);
@@ -185,6 +207,8 @@
         private System.Windows.Forms.ComboBox TargetSheet;
         private System.Windows.Forms.TextBox TargetName;
         private System.Windows.Forms.Button ResetButton;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 

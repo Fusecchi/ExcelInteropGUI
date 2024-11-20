@@ -12,8 +12,6 @@ namespace ExcelInteropGUI
 {
     public partial class EditLog : Form
     {
-        public List<(int ChangedRow, int ChangedCol, object ChangedVal)> Log { get; set; } = new List<(int ChangedRow, int ChangedCol, object ChangedVal)>();
-        public List<object> NewValues { get; set; } = new List<object>();
 
         public EditLog()
         {
@@ -23,10 +21,39 @@ namespace ExcelInteropGUI
         private void EditLog_Load(object sender, EventArgs e)
         {
             ShowLogText.Multiline = true;
-            for (int i = 0; i<Log.Count; i++ )
+            for (int i = 0; i<SharedData.Log.Count; i++ )
             {
-                ShowLogText.AppendText($"Changed The Value in Row {Log[i].ChangedRow} Collumn {Log[i].ChangedCol} From: {Log[i].ChangedVal} To: {NewValues[i]} \n");
+                if (SharedData.NewValues[i].ChangedVal.ToString() == "" || SharedData.NewValues[i].ChangedVal.ToString() == "0")
+                {
+                    ShowLogText.SelectionColor = Color.Red;
+                    ShowLogText.AppendText($"{SharedData.NewValues[i].EdittedTime} Deleted The Value in Row {SharedData.Log[i].ChangedRow} Collumn {SharedData.Log[i].ChangedCol} \n");
+                }
+                else
+                {
+                    ShowLogText.SelectionColor = Color.Black;
+                    ShowLogText.AppendText($"{SharedData.NewValues[i].EdittedTime} Changed The Value in Row: ");
+                    ShowLogText.SelectionColor = Color.Blue;
+                    ShowLogText.AppendText($"{SharedData.Log[i].ChangedRow} ");
+                    ShowLogText.SelectionColor = Color.Black;
+                    ShowLogText.AppendText($"Collumn: ");
+                    ShowLogText.SelectionColor = Color.Blue;
+                    ShowLogText.AppendText($"{SharedData.Log[i].ChangedCol} ");
+                    ShowLogText.SelectionColor = Color.Black;
+                    ShowLogText.AppendText($"From: ");
+                    ShowLogText.SelectionColor = Color.Blue;
+                    ShowLogText.AppendText($"{SharedData.Log[i].ChangedVal} ");
+                    ShowLogText.SelectionColor = Color.Black;
+                    ShowLogText.AppendText($"To: ");
+                    ShowLogText.SelectionColor = Color.Blue;
+                    ShowLogText.AppendText($"{SharedData.NewValues[i].ChangedVal} \n");
+                }
+
             }
+        }
+
+        private void CloseEditLog_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

@@ -77,6 +77,7 @@
             this.CloseEditLog.TabIndex = 4;
             this.CloseEditLog.Text = "Close";
             this.CloseEditLog.UseVisualStyleBackColor = true;
+            this.CloseEditLog.Click += new System.EventHandler(this.CloseEditLog_Click);
             // 
             // EditLog
             // 

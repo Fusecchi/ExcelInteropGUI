@@ -37,8 +37,6 @@ namespace ExcelInteropGUI
         bool Converted;
         //Cell address of the Blank FIle
         List<int> CellAddr = new List<int>();
-        public List<(int ChangedRow, int ChangedCol, object ChangedVal)> Log { get; set; } = new List<(int ChangedRow, int ChangedCol, object ChangedVal)>();
-        public List<object> NewValues { get; set; } = new List<object>();
         int DataChecker, TargetType;
         public Form1()
         {
@@ -94,8 +92,6 @@ namespace ExcelInteropGUI
                 //Hide this form and open the Edit Form
                 EditWin editwin = new EditWin();
                 editwin.EditData = EditData;
-                editwin.NewValues = NewValues;
-                editwin.Log = Log;
                 //Subscribe to the event when the Editwin form Button Save is Clicked
                 editwin.DataSaved += editwin_Datasaved;
                 //Show this form when EditWin Form is closed
@@ -234,18 +230,21 @@ namespace ExcelInteropGUI
                 DetectBlank(DataRange,lastCol);
                 EditButton.Enabled = CellAddr.Count > 0;
                 //Check if the the data and the targetfile is the samefile
-                switch (fn)
+                switch (fn.ToUpper())
                 {
                    case string s when s.Contains("MITSUBISHI"):
                         DataChecker = 1;
+                        Debug.WriteLine("DataChecker 1");
                         break;
                     case string s when s.Contains("KOMATSU"):
                         DataChecker = 2;
+                        Debug.WriteLine("DataChecker 2");
                         break;
                     case string s when s.Contains("ASTES"):
                         DataChecker= 3;
+                        Debug.WriteLine("DataChecker 3");
                         break;
-
+                    
                 }
                 
             }
@@ -381,7 +380,7 @@ namespace ExcelInteropGUI
                 SendButton.Enabled = true;
 
             }
-            switch (Tn)
+            switch (Tn.ToUpper())
             {
                 case string s when s.Contains("MITSUBISHI"):
                     TargetType = 1;
