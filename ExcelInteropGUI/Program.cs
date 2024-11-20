@@ -14,6 +14,8 @@ namespace ExcelInteropGUI
         [STAThread]
         static void Main()
         {
+            ErrorHandling.Initialize();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());

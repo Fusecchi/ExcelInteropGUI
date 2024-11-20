@@ -16,7 +16,8 @@ namespace ExcelInteropGUI
     {
         public DataTable EditData { get; set; }
         public event Action<DataTable> DataSaved;
-        public List<(int ChangedRow, int ChangedCol, object ChangedVal)> Log { get; set; } = new List<(int ChangedRow, int ChangedCol, object ChangedVal)> ();
+        public static List<(int ChangedRow, int ChangedCol, object ChangedVal)> LocalLog = new List<(int ChangedRow, int ChangedCol, object ChangedVal)>();
+        public List<EventLogEntry> EventLog = new List<EventLogEntry>();
         private bool changed;
         public EditWin()
         {
@@ -31,7 +32,6 @@ namespace ExcelInteropGUI
         {
             EditTable.DataSource = EditData;
             EditTable.AutoResizeColumn((int)DataGridViewAutoSizeColumnMode.AllCells);
-            EditTable.AutoResizeRow((int)DataGridViewAutoSizeRowMode.AllCells);
             EditTable.Dock = DockStyle.Fill;
             EditTable.PerformLayout();
             int newWidth = EditTable.Width+700;
@@ -62,14 +62,12 @@ namespace ExcelInteropGUI
         private void EditTable_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             changed = true;
-            if (e.ColumnIndex > 0 && e.RowIndex > 0) 
-            {
-                
-            }
+            SharedData.NewValues.Add((EditData.Rows[e.RowIndex][e.ColumnIndex], DateTime.Now));
         }
 
         private void EditWin_FormClosing(object sender, FormClosingEventArgs e)
         {
+
             if (changed) 
             {
                 DialogResult ConfirmExit =  MessageBox.Show("Any Change won't be Saved",
@@ -78,7 +76,7 @@ namespace ExcelInteropGUI
                     MessageBoxIcon.Warning);
                 switch (ConfirmExit) { 
                     case DialogResult.Yes:
-                        foreach(var RollBack in Log)
+                        foreach(var RollBack in LocalLog)
                         {
                             EditData.Rows[RollBack.ChangedRow][RollBack.ChangedCol] = RollBack.ChangedVal;
                         }
@@ -96,7 +94,8 @@ namespace ExcelInteropGUI
 
         private void EditTable_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
-            Log.Add((e.RowIndex, e.ColumnIndex, EditData.Rows[e.RowIndex][e.ColumnIndex]));
+            LocalLog.Add((e.RowIndex, e.ColumnIndex, EditData.Rows[e.RowIndex][e.ColumnIndex]));
+            SharedData.Log.Add((e.RowIndex, e.ColumnIndex, EditData.Rows[e.RowIndex][e.ColumnIndex]));
         }
 
         private void CLoseButton_Click(object sender, EventArgs e)
@@ -106,7 +105,10 @@ namespace ExcelInteropGUI
 
         private void LogButton_Click(object sender, EventArgs e)
         {
-
+            EditLog editLog = new EditLog();
+            editLog.Show();
+            editLog.FormClosed += (s, args) => this.Show();
+            this.Hide();
         }
     }
 }
