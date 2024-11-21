@@ -39,7 +39,7 @@ namespace ExcelInteropGUI
         //Cell address of the Blank FIle
         List<int> CellAddr = new List<int>();
         int DataChecker, TargetType;
-        
+        public Action<string> OnFunctionStart;
 
 
         public Form1()
@@ -60,7 +60,7 @@ namespace ExcelInteropGUI
                 ofd.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.csv)|*.xls;*.xlsx;*.xlsm;*.csv";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    using (LoadingBar load = new LoadingBar(LoadData))
+                    using (LoadingBar load = new LoadingBar(LoadData, this))
                     {
                         load.ShowDialog(this);
                     }
@@ -83,7 +83,10 @@ namespace ExcelInteropGUI
                 ofd.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.csv)|*.xls;*.xlsx;*.xlsm;*.csv";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    TargetFile();
+                    using(LoadingBar load = new LoadingBar(TargetFile, this))
+                    {
+                        load.ShowDialog(this);
+                    } 
                 }
             }
             catch (Exception ex)
@@ -145,11 +148,16 @@ namespace ExcelInteropGUI
                     MessageBox.Show("Selected File Isn't Compatible");
                     return;
                 }
-                TransferData();
-                PasteBook.Save();
+                using(LoadingBar load = new LoadingBar(TransferData, this))
+                {
+                    load.ShowDialog();
+                }
                 if (Converted)
                 {
-                    SaveBacktoCSV();
+                    using (LoadingBar load = new LoadingBar(SaveBacktoCSV, this))
+                    {
+                        load.ShowDialog();
+                    }
                 }
                 MessageBox.Show($"Operation Finished");
             }
@@ -201,8 +209,8 @@ namespace ExcelInteropGUI
         }
         private void LoadData()
         {
-
-            //ResetData();
+            OnFunctionStart?.Invoke("Clean the Data");
+            ResetData();
             //The File Path of the selected file
             string fp = ofd.FileName;
             //The File Name of the file
@@ -212,85 +220,57 @@ namespace ExcelInteropGUI
                 //Check if the file is CSV extension
                 if (fp.EndsWith(".csv"))
                 {
+                    OnFunctionStart?.Invoke("Processing CSV");
                     CSVConvert();
                     fp = ConvertFromCSV;
                 }
                 //Setup for the Workbook Data
-                if (FileName.InvokeRequired)
-                {
-                    FileName.Invoke(new Action(() =>
-                    {
-                        FileName.Text = fn;
-                    }));
-                }
-                else
+                SafeInvoke(FileName, () =>
                 {
                     FileName.Text = fn;
-                }
-                
-                    
+                });
+
                 workbook = new XLWorkbook(fp);
-                workbook.CalculateMode = XLCalculateMode.Manual;
+                //workbook.CalculateMode = XLCalculateMode.Manual;
                 sheet = workbook.Worksheet(1);
                 From = sheet;
                 var lastRow = sheet.LastRowUsed().RowNumber();
                 var lastCol = sheet.LastColumnUsed().ColumnNumber();
                 var DataRange = sheet.Range(2, 1, lastRow, lastCol);
                 //Check the validity off all the data for contamination
+                OnFunctionStart?.Invoke("Checking For Contamination");
                 for (int i = 0; i < lastRow - 1; i++)
                 {
                     if (!sheet.Cell(2, 1).Value.Equals(sheet.Cell(2 + i, 1).Value))
                     {
                         MessageBox.Show($"Cell in: {sheet.Cell(2 + i, 1)} has value of: {sheet.Cell(2 + i, 1).Value}");
                         fp = null;
-                        if (FileName.InvokeRequired)
-                        {
-                            FileName.Invoke(new Action(() =>
-                            {
-                                FileName.Text = null;
-                            }
-                            ));
-                        }
-                        else
+                        SafeInvoke(FileName, () =>
                         {
                             FileName.Text = null;
-                        }
+                        });
                         return;
                     }
                 }
-                if (FileType.InvokeRequired)
+                OnFunctionStart?.Invoke("Checking For Blank");
+                DetectBlank(DataRange, lastCol);
+                SafeInvoke(FileType, () =>
                 {
-                    FileType.Invoke(new Action(() => FileType.Text = sheet.Cell(2, 1).Value.ToString()
-                    ));
-                }
-                else {
-                    FileType.Text = sheet.Cell(2,1).Value.ToString();
-                }
-              
-                DetectBlank(DataRange,lastCol);
-                if (FileType.InvokeRequired) 
-                {
-                    FileType.Invoke(new Action(() => EditButton.Enabled = CellAddr.Count > 0
-                    ));
-                }
-                else {
-                    EditButton.Enabled = CellAddr.Count > 0;
-                        }
-                EditButton.Enabled = CellAddr.Count > 0;
+                    FileType.Text = sheet.Cell(2, 1).Value.ToString();
+                    EditButton.Enabled = CellAddr.Count> 0;
+                });
+                OnFunctionStart?.Invoke("Determining the File");
                 //Check if the the data and the targetfile is the samefile
                 switch (fn.ToUpper())
                 {
                    case string s when s.Contains("MITSUBISHI"):
                         DataChecker = 1;
-                        Debug.WriteLine("DataChecker 1");
                         break;
                     case string s when s.Contains("KOMATSU"):
                         DataChecker = 2;
-                        Debug.WriteLine("DataChecker 2");
                         break;
                     case string s when s.Contains("ASTES"):
                         DataChecker= 3;
-                        Debug.WriteLine("DataChecker 3");
                         break;
                     
                 }
@@ -351,6 +331,10 @@ namespace ExcelInteropGUI
             int dotPos = ConvertFromCSV.LastIndexOf("\\");
             ConvertFromCSV = ConvertFromCSV.Substring(0, dotPos) + "\\" + FileType.Text + " " + BatchDate + ".CSV";
             File.WriteAllText(ConvertFromCSV, CSVConv.ToString());
+            if (File.Exists(ConvertFromCSV))
+            {
+                File.Delete(ConvertFromCSV);
+            }
 
         }
         private void editwin_Datasaved(System.Data.DataTable updatedTable)
@@ -395,12 +379,18 @@ namespace ExcelInteropGUI
         private void TransferData()
         {
             var LastRowTo = From.LastRowUsed().RowNumber();
-            for (var row = 0; row < LastRowTo; row++)
+            for (var row = 0; row < LastRowTo-1; row++)
             {
-                To.Cell(17 + row, 3).Value = From.Cell(2 + row, 4).Value; //板厚
+                float code = float.Parse(From.Cell(2 + row, 4).Value.ToString());
+                OnFunctionStart?.Invoke($"Fill in 板厚 on {To.Name} in Cell: {To.Cell(17 + row, 3).Address}");
+                To.Cell(17 + row, 3).Value = code; //板厚
+                OnFunctionStart?.Invoke($"Fill in 寸法W on {To.Name} in Cell: {To.Cell(17 + row, 7).Address}");
                 To.Cell(17 + row, 7).Value = From.Cell(2 + row, 5).Value; //寸法W
+                OnFunctionStart?.Invoke($"Fill in 寸法H on {To.Name} in Cell: {To.Cell(17 + row, 8).Address}");
                 To.Cell(17 + row, 8).Value = From.Cell(2 + row, 6).Value; //寸法H
+                OnFunctionStart?.Invoke($"Fill in 歩留 on {To.Name} in Cell: {To.Cell(17 + row, 14).Address}");
                 To.Cell(17 + row, 14).Value = From.Cell(2 + row, 7).Value; //歩留
+                OnFunctionStart?.Invoke($"Fill in 三菱加工時間 on {To.Name} in Cell: {To.Cell(17 + row, 12).Address}");
                 string CleanTimeData = From.Cell(2 + row, 9).Value.ToString();
                 var CharToRemove = "()（）分";
                 foreach (char c in CharToRemove)
@@ -409,23 +399,34 @@ namespace ExcelInteropGUI
                 }
                 To.Cell(17 + row, 12).Value = CleanTimeData; //三菱加工時間
             }
+            OnFunctionStart?.Invoke("Saving Book");
+            PasteBook.Save();
         }
         private void TargetFile()
         {
+            OnFunctionStart?.Invoke("Resetting the data");
             ResetTarget();
             string Tp = ofd.FileName;
             string Tn = Path.GetFileName(Tp);
+            OnFunctionStart?.Invoke("Reading the File");
             if (!string.IsNullOrEmpty(Tp))
             {
                 PasteBook = new XLWorkbook(Tp);
-                PasteBook.CalculateMode = XLCalculateMode.Manual;
-                TargetName.Text = Tn;
+                PasteBook.CalculateMode = XLCalculateMode.Auto;
+                OnFunctionStart?.Invoke("Reading the Sheets");
                 foreach (var Sheet in PasteBook.Worksheets)
                 {
-                    TargetSheet.Items.Add(Sheet);
+                    SafeInvoke(TargetSheet, () =>
+                    {
+                        TargetSheet.Items.Add(Sheet);
+                    });
                 }
-                TargetSheet.SelectedIndex = 0;
-                SendButton.Enabled = true;
+                SafeInvoke(this, () =>
+                {
+                    TargetName.Text = Tn;
+                    SendButton.Enabled = true;
+                    TargetSheet.SelectedIndex = 0;
+                });
 
             }
             switch (Tn.ToUpper())
@@ -449,10 +450,13 @@ namespace ExcelInteropGUI
             workbook = null;
             Converted = false;
             ConvertFromCSV = null;
-            FileType.Clear();
-            FileName.Clear();
+            SafeInvoke(this, () =>
+            {
+                FileType.Clear();
+                FileName.Clear();
+                EditButton.Enabled = false;
+            });
             CellAddr.Clear();
-            EditButton.Enabled = false;
             Converted = false;
             EditData.Reset();
             TempTableToConvert.Reset();
@@ -460,11 +464,25 @@ namespace ExcelInteropGUI
         private void ResetTarget() 
         {
             To = null;
-            TargetSheet.Items.Clear();
+            SafeInvoke(this, () =>
+            {
+                TargetSheet.Items.Clear();
+                TargetName.Clear();
+            });
             ToSheet = null;
             PasteBook = null;
-            TargetName.Clear();
 
+        }
+
+        private void SafeInvoke(System.Windows.Forms.Control control, Action uiUpdate)
+        {
+            if (control.InvokeRequired)
+            {
+                control.Invoke(uiUpdate);
+            }
+            else { 
+            uiUpdate();
+            }
         }
 
     }

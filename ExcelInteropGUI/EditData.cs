@@ -108,7 +108,13 @@ namespace ExcelInteropGUI
             EditLog editLog = new EditLog();
             editLog.Show();
             editLog.FormClosed += (s, args) => this.Show();
+            editLog.SelectedAction += _SelectedAction;
             this.Hide();
+        }
+        private void _SelectedAction(int RollBack)
+        {
+            SharedData.Log.RemoveRange(RollBack, SharedData.Log.Count);
+
         }
     }
 }

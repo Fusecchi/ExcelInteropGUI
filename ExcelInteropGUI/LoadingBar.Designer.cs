@@ -31,6 +31,7 @@ namespace ExcelInteropGUI
         private void InitializeComponent()
         {
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.ProcessingLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // progressBar1
@@ -42,20 +43,32 @@ namespace ExcelInteropGUI
             this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar1.TabIndex = 0;
             // 
+            // ProcessingLabel
+            // 
+            this.ProcessingLabel.AutoSize = true;
+            this.ProcessingLabel.Location = new System.Drawing.Point(18, 7);
+            this.ProcessingLabel.Name = "ProcessingLabel";
+            this.ProcessingLabel.Size = new System.Drawing.Size(94, 20);
+            this.ProcessingLabel.TabIndex = 1;
+            this.ProcessingLabel.Text = "Processing";
+            // 
             // LoadingBar
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(458, 93);
+            this.Controls.Add(this.ProcessingLabel);
             this.Controls.Add(this.progressBar1);
             this.Name = "LoadingBar";
             this.Text = "LoadingBar";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private System.Windows.Forms.ProgressBar progressBar1;
+        private Label ProcessingLabel;
     }
 }
