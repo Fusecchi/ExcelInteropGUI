@@ -295,6 +295,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="ExcelInteropGUI_TemporaryKey.pfx" />
     <None Include="packages.config" />
@@ -351,6 +352,15 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Folder-Icon-Template-Design-Vector-Graphics-13725642-1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Folder-Icon-Template-Design-Vector-Graphics-13725642-1 %28Custom%29.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Folder-Icon-Template-Design-Vector-Graphics-13725642-1 %28Custom%291.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -41,6 +41,7 @@
             this.ResetButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.FolderBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // SelectData
@@ -167,11 +168,23 @@
             this.label2.TabIndex = 14;
             this.label2.Text = "label2";
             // 
+            // FolderBtn
+            // 
+            this.FolderBtn.BackColor = System.Drawing.SystemColors.Control;
+            this.FolderBtn.Image = global::ExcelInteropGUI.Properties.Resources.Folder_Icon_Template_Design_Vector_Graphics_13725642_1__Custom_1;
+            this.FolderBtn.Location = new System.Drawing.Point(736, 26);
+            this.FolderBtn.Name = "FolderBtn";
+            this.FolderBtn.Size = new System.Drawing.Size(30, 30);
+            this.FolderBtn.TabIndex = 15;
+            this.FolderBtn.UseVisualStyleBackColor = false;
+            this.FolderBtn.Click += new System.EventHandler(this.FolderBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.FolderBtn);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.ResetButton);
@@ -209,6 +222,7 @@
         private System.Windows.Forms.Button ResetButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button FolderBtn;
     }
 }
 

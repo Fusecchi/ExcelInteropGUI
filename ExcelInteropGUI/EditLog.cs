@@ -53,6 +53,7 @@ namespace ExcelInteropGUI
         private void Rollback_Click(object sender, EventArgs e)
         {
             SelectedAction?.Invoke(SelectedRB);
+            this.Close();
         }
     }
 }

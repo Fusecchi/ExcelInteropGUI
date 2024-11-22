@@ -40,17 +40,20 @@ namespace ExcelInteropGUI
         List<int> CellAddr = new List<int>();
         int DataChecker, TargetType;
         public Action<string> OnFunctionStart;
-
+        string Tp;
+        bool TargetFileOpened;
+        bool SourceFileClicked, TargetFileClicked;
 
         public Form1()
         {
             InitializeComponent();
+            
         }
         private void Form1_Load(object sender, EventArgs e)
         {
             SendButton.Enabled = false;
             EditButton.Enabled = false;
-            
+            TargetFileOpened = false;
         }
         private void SelectData_Click(object sender, EventArgs e)
         {
@@ -146,6 +149,11 @@ namespace ExcelInteropGUI
                 if(DataChecker != TargetType)
                 {
                     MessageBox.Show("Selected File Isn't Compatible");
+                    return;
+                }
+                if (TargetFileOpened)
+                {
+                    MessageBox.Show("File Is being Opened Please Close it!", "Open File Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 using(LoadingBar load = new LoadingBar(TransferData, this))
@@ -274,7 +282,11 @@ namespace ExcelInteropGUI
                         break;
                     
                 }
-                
+                SourceFileClicked =true;
+                SafeInvoke(this, () =>
+                {
+                    CheckSendBtn();
+                });
             }
         }
         //Detect the blank in the file 
@@ -337,45 +349,26 @@ namespace ExcelInteropGUI
             }
 
         }
-        private void editwin_Datasaved(System.Data.DataTable updatedTable)
+        private void editwin_Datasaved(System.Data.DataTable updatedTable, List<(int ChangedRow, int ChangedCol, object ChangedVal)> values)
         {
             //This Function will run when the event is raised
             //The table from Editwin will Replace the EditData
             EditData = updatedTable;
             //Save the changed value in the list below
-            HashSet<int> EditedTable = new HashSet<int>();
-            foreach (DataRow row in EditData.Rows) 
+            foreach(var item in values)
             {
-                //Save the Row in EditedTable list if it doesnt exist
-                if (!EditedTable.Contains(EditData.Rows.IndexOf(row)))
-                {
-                    EditedTable.Add(EditData.Rows.IndexOf(row));
-                }
-                foreach (DataColumn col in EditData.Columns) {
-                    //If the said Row Has Blank remove the Row from list
-
-                    if (row[col] == DBNull.Value || string.IsNullOrWhiteSpace(row[col].ToString()))
-                    {
-                        EditedTable.Remove(EditData.Rows.IndexOf(row));
-                        break ;
-                    }
-                }
+                Debug.WriteLine(item);
+                From.Cell(item.ChangedRow+1,item.ChangedCol+1).Value = updatedTable.Rows[item.ChangedRow][item.ChangedCol].ToString();
             }
 
-            //Replace the Row of the original data with the row of the Edited Value from user
-            //It replace the row by replacing detecting the index of the non blank row and get the row address from celladdr
-            foreach (var index in EditedTable)
-            {
-                foreach(DataColumn colins in EditData.Columns) 
-                {
-                    var x = CellAddr[index];
-                    var y = EditData.Columns.IndexOf(colins)+1;
-                    From.Cell(x, y).Value = EditData.Rows[index][colins]?.ToString();
-                }
-            }
-
-            EditedTable.Clear();
         }
+
+        private void FolderBtn_Click(object sender, EventArgs e)
+        {
+            Process.Start(Tp);
+            TargetFileOpened = true;
+        }
+
         private void TransferData()
         {
             var LastRowTo = From.LastRowUsed().RowNumber();
@@ -406,7 +399,7 @@ namespace ExcelInteropGUI
         {
             OnFunctionStart?.Invoke("Resetting the data");
             ResetTarget();
-            string Tp = ofd.FileName;
+            Tp = ofd.FileName;
             string Tn = Path.GetFileName(Tp);
             OnFunctionStart?.Invoke("Reading the File");
             if (!string.IsNullOrEmpty(Tp))
@@ -424,7 +417,6 @@ namespace ExcelInteropGUI
                 SafeInvoke(this, () =>
                 {
                     TargetName.Text = Tn;
-                    SendButton.Enabled = true;
                     TargetSheet.SelectedIndex = 0;
                 });
 
@@ -442,11 +434,21 @@ namespace ExcelInteropGUI
                     break;
 
             }
+            TargetFileClicked = true;
+            SafeInvoke(this, () =>
+            {
+                CheckSendBtn();
+            });
+        }
+        private void CheckSendBtn()
+        {
+            if (TargetFileClicked && SourceFileClicked) SendButton.Enabled = true;
         }
         private void ResetData() 
         {
             From = null;
             sheet = null;
+            Tp = null;
             workbook = null;
             Converted = false;
             ConvertFromCSV = null;
@@ -460,6 +462,7 @@ namespace ExcelInteropGUI
             Converted = false;
             EditData.Reset();
             TempTableToConvert.Reset();
+            SourceFileClicked = false;
         }
         private void ResetTarget() 
         {
@@ -471,7 +474,7 @@ namespace ExcelInteropGUI
             });
             ToSheet = null;
             PasteBook = null;
-
+            TargetFileClicked = false;
         }
 
         private void SafeInvoke(System.Windows.Forms.Control control, Action uiUpdate)

@@ -15,7 +15,7 @@ namespace ExcelInteropGUI
     public partial class EditWin : Form
     {
         public DataTable EditData { get; set; }
-        public event Action<DataTable> DataSaved;
+        public event Action<DataTable, List<(int ChangedRow, int ChangedCol, object ChangedVal)>> DataSaved;
         public static List<(int ChangedRow, int ChangedCol, object ChangedVal)> LocalLog = new List<(int ChangedRow, int ChangedCol, object ChangedVal)>();
         public List<EventLogEntry> EventLog = new List<EventLogEntry>();
         private bool changed;
@@ -55,7 +55,7 @@ namespace ExcelInteropGUI
         private void SaveEdit_Click(object sender, EventArgs e)
         {
             changed = false;
-            DataSaved?.Invoke(EditData);
+            DataSaved?.Invoke(EditData,LocalLog);
             MessageBox.Show("Succesfully Saved");
         }
 
@@ -113,6 +113,10 @@ namespace ExcelInteropGUI
         }
         private void _SelectedAction(int RollBack)
         {
+            foreach(var RB in SharedData.Log.AsEnumerable().Reverse())
+            {
+                EditData.Rows[RB.ChangedRow][RB.ChangedCol] = RB.ChangedVal;
+            }
             SharedData.Log.RemoveRange(RollBack, SharedData.Log.Count);
 
         }
