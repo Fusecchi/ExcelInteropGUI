@@ -18,6 +18,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using static ClosedXML.Excel.XLPredefinedFormat;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace ExcelInteropGUI
 {
@@ -43,6 +44,7 @@ namespace ExcelInteropGUI
         string Tp;
         bool TargetFileOpened;
         bool SourceFileClicked, TargetFileClicked;
+        List<(string setting, int PresetRow, int PresetCol)> preset;
         public System.Data.DataTable DataTable { get; set; } = new System.Data.DataTable();
 
         public Form1()
@@ -409,6 +411,16 @@ namespace ExcelInteropGUI
             OnFunctionStart?.Invoke("Saving Book");
             PasteBook.Save();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            LoadPreset();
+            foreach (var Item in preset)
+            {
+                Debug.WriteLine(Item);
+            }
+        }
+
         private void TargetFile()
         {
             OnFunctionStart?.Invoke("Resetting the data");
@@ -493,7 +505,8 @@ namespace ExcelInteropGUI
         }
         private void LoadPreset()
         {
-
+            string json = File.ReadAllText("Preset.json");
+            preset = JsonConvert.DeserializeObject<List<(string setting, int PresetRow, int PresetCol)>>(json);
         }
         private void SafeInvoke(System.Windows.Forms.Control control, Action uiUpdate)
         {

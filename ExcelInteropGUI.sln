@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelInteropGUI", "ExcelInteropGUI\ExcelInteropGUI.csproj", "{2505726E-4BAF-4D3B-BE62-7BBE11E8181E}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupApp", "SetupApp\SetupApp.vdproj", "{49AF3C9C-C4AC-4003-8E69-AB129E412207}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,8 @@ Global
 		{2505726E-4BAF-4D3B-BE62-7BBE11E8181E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2505726E-4BAF-4D3B-BE62-7BBE11E8181E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2505726E-4BAF-4D3B-BE62-7BBE11E8181E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49AF3C9C-C4AC-4003-8E69-AB129E412207}.Debug|Any CPU.ActiveCfg = Debug
+		{49AF3C9C-C4AC-4003-8E69-AB129E412207}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
