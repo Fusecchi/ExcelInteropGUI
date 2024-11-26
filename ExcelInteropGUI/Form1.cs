@@ -43,6 +43,7 @@ namespace ExcelInteropGUI
         string Tp;
         bool TargetFileOpened;
         bool SourceFileClicked, TargetFileClicked;
+        public System.Data.DataTable DataTable { get; set; } = new System.Data.DataTable();
 
         public Form1()
         {
@@ -76,8 +77,6 @@ namespace ExcelInteropGUI
             }
 
         }
-
-
         private void SelectTarget_Click(object sender, EventArgs e)
         {
             try
@@ -129,7 +128,6 @@ namespace ExcelInteropGUI
                 }
             }
         }
-
         private void ResetButton_Click(object sender, EventArgs e)
         {
             ResetData();
@@ -141,7 +139,6 @@ namespace ExcelInteropGUI
             ToSheet = PasteBook.Worksheet(selectedSheet + 1);
             To = ToSheet;
         }
-
         private void SendButton_Click(object sender, EventArgs e)
         {
             try
@@ -245,6 +242,19 @@ namespace ExcelInteropGUI
                 var lastRow = sheet.LastRowUsed().RowNumber();
                 var lastCol = sheet.LastColumnUsed().ColumnNumber();
                 var DataRange = sheet.Range(2, 1, lastRow, lastCol);
+                for(int i = 1; i <= lastCol; i++)
+                {
+                    DataTable.Columns.Add();
+                }
+                for (int i = 0; i < lastRow; i++)
+                {
+                    DataRow row = DataTable.NewRow();
+                    for (int j = 0; j<lastCol; j++) 
+                    {
+                        row[j] = From.Cell(i+1, j+1).Value;
+                    }
+                    DataTable.Rows.Add(row);
+                }
                 //Check the validity off all the data for contamination
                 OnFunctionStart?.Invoke("Checking For Contamination");
                 for (int i = 0; i < lastRow - 1; i++)
@@ -321,7 +331,6 @@ namespace ExcelInteropGUI
                 EditData.Rows.Add(row);
             }
         }
-
         private void SaveBacktoCSV()
         {
             StringBuilder CSVConv = new StringBuilder();
@@ -357,18 +366,23 @@ namespace ExcelInteropGUI
             //Save the changed value in the list below
             foreach(var item in values)
             {
-                Debug.WriteLine(item);
                 From.Cell(item.ChangedRow+1,item.ChangedCol+1).Value = updatedTable.Rows[item.ChangedRow][item.ChangedCol].ToString();
             }
 
         }
-
         private void FolderBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Tp);
             TargetFileOpened = true;
         }
-
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Setting setting = new Setting();
+            setting.DataTable = DataTable;
+            setting.FormClosed += (s, args) => this.Show();
+            setting.Show();
+            this.Hide();
+        }
         private void TransferData()
         {
             var LastRowTo = From.LastRowUsed().RowNumber();
@@ -458,6 +472,7 @@ namespace ExcelInteropGUI
                 FileName.Clear();
                 EditButton.Enabled = false;
             });
+            DataTable.Reset();
             CellAddr.Clear();
             Converted = false;
             EditData.Reset();
@@ -476,7 +491,10 @@ namespace ExcelInteropGUI
             PasteBook = null;
             TargetFileClicked = false;
         }
+        private void LoadPreset()
+        {
 
+        }
         private void SafeInvoke(System.Windows.Forms.Control control, Action uiUpdate)
         {
             if (control.InvokeRequired)
