@@ -34,22 +34,20 @@ namespace ExcelInteropGUI
             EditTable.AutoResizeColumn((int)DataGridViewAutoSizeColumnMode.AllCells);
             EditTable.Dock = DockStyle.Fill;
             EditTable.PerformLayout();
+            EditTable.Refresh();
+            EditTable.Invalidate();
             int newWidth = EditTable.Width+700;
             int newHeight = EditTable.Height;
             SaveEdit.Location = new Point(newWidth+20, SaveEdit.Location.Y);
             LogButton.Location = new Point(newWidth + 20, LogButton.Location.Y);
             CLoseButton.Location = new Point(newWidth + 20, CLoseButton.Location.Y);
-            //Debug.WriteLine($"current pos : ${SaveEdit.Location}");
-            //Debug.WriteLine($"current pos : ${CLoseButton.Location}");
-            //Debug.WriteLine($"The Height: { newHeight} The Width:{newWidth}");
-
             this.ClientSize = new Size(SaveEdit.Location.X+130, EditTable.Size.Height);
-            //Debug.WriteLine($"The Height: { this.ClientSize.Height} The Width:{this.ClientSize.Width}");
+
         }
 
         private void EditWin_FormClosed(object sender, FormClosedEventArgs e)
         {
-
+            EditTable.Dispose();
         }
 
         private void SaveEdit_Click(object sender, EventArgs e)

@@ -20,6 +20,7 @@ using static ClosedXML.Excel.XLPredefinedFormat;
 using System.Threading;
 using Newtonsoft.Json;
 
+
 namespace ExcelInteropGUI
 {
     public partial class Form1 : Form
@@ -46,7 +47,7 @@ namespace ExcelInteropGUI
         bool SourceFileClicked, TargetFileClicked;
         List<(string setting, int PresetRow, int PresetCol)> preset;
         public System.Data.DataTable DataTable { get; set; } = new System.Data.DataTable();
-
+        public System.Data.DataTable TargetTable { get; set; } = new System.Data.DataTable();
         public Form1()
         {
             InitializeComponent();
@@ -379,11 +380,37 @@ namespace ExcelInteropGUI
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            Setting setting = new Setting();
+            using (LoadingBar load = new LoadingBar(() =>
+            {
+                OnFunctionStart?.Invoke("Making Table");
+
+                var LastRow = To.RangeUsed().RowCount();
+                var LastCol = To.RangeUsed().ColumnCount();
+                for (int i = 1; i <= LastCol; i++)
+                {
+                    DataTable.Columns.Add();
+                }
+                for (int i = 1; i <= LastRow; i++)
+                {
+                    DataRow row = DataTable.NewRow();
+                    for (int j = 1; j <= LastCol; j++)
+                    {
+                        row[j - 1] = To.Cell(i, j).Value.ToString();
+                        Debug.WriteLine(To.Cell(i, j).Value.ToString());
+                    }
+                    DataTable.Rows.Add(row);
+                }
+                Setting setting = new Setting();
             setting.DataTable = DataTable;
+            setting.TargetTable = TargetTable;
             setting.FormClosed += (s, args) => this.Show();
             setting.Show();
             this.Hide();
+            }, this))
+            {
+                load.ShowDialog();
+            }
+
         }
         private void TransferData()
         {
@@ -411,7 +438,6 @@ namespace ExcelInteropGUI
             OnFunctionStart?.Invoke("Saving Book");
             PasteBook.Save();
         }
-
         private void button2_Click(object sender, EventArgs e)
         {
             LoadPreset();
@@ -420,7 +446,6 @@ namespace ExcelInteropGUI
                 Debug.WriteLine(Item);
             }
         }
-
         private void TargetFile()
         {
             OnFunctionStart?.Invoke("Resetting the data");

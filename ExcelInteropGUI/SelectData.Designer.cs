@@ -42,7 +42,6 @@
             this.CellToChose.Size = new System.Drawing.Size(115, 89);
             this.CellToChose.TabIndex = 0;
             this.CellToChose.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.CellToChose_CellClick);
-
             // 
             // SelectDataForm
             // 
@@ -50,6 +49,7 @@
             this.Controls.Add(this.CellToChose);
             this.Name = "SelectDataForm";
             this.Text = "Select Data";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SelectDataForm_FormClosed);
             this.Load += new System.EventHandler(this.SelectDataForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.CellToChose)).EndInit();
             this.ResumeLayout(false);

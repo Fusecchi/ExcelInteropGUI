@@ -21,6 +21,7 @@ namespace ExcelInteropGUI
                 Exception ex = (Exception)e.ExceptionObject;
                 MessageBox.Show($"An Error Occured: {ex.Message}");
             };
+            return;
         }
     }
 }

@@ -23,6 +23,8 @@ namespace ExcelInteropGUI
         {
             int width = 0;
             CellToChose.DataSource = DatatoClick;
+            CellToChose.Refresh();
+            CellToChose.Invalidate();
             CellToChose.AutoResizeColumn((int)DataGridViewAutoSizeColumnMode.AllCells);
             CellToChose.Dock = DockStyle.Fill;
             CellToChose.PerformLayout();
@@ -37,6 +39,13 @@ namespace ExcelInteropGUI
         {
             selectedData?.Invoke((e.RowIndex+1,e.ColumnIndex, DatatoClick.Rows[e.RowIndex][e.ColumnIndex]));
             this.Close();
+        }
+
+        private void SelectDataForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            CellToChose.DataSource = null;
+            CellToChose.Rows.Clear();
+            CellToChose.Columns.Clear();
         }
     }
 }

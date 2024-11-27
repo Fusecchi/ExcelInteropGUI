@@ -19,7 +19,8 @@ namespace ExcelInteropGUI
 
     {
         public System.Data.DataTable DataTable { get; set; } = new System.Data.DataTable();
-        public List<(string setting, int PresetRow, int PresetCol)> Preset { get; set; } = new List<(string setting, int PresetRow, int PresetCol)>();
+        public System.Data.DataTable TargetTable { get; set; } = new System.Data.DataTable();
+        public List<(string DataIndex, string setting, int PresetRow, int PresetCol)> Preset { get; set; } = new List<(string DataIndex, string setting, int PresetRow, int PresetCol)>();
         private int BtnIterration = 0;
         private Panel scrollPanel = new Panel();
         //private int yoffset = 20;
@@ -36,17 +37,36 @@ namespace ExcelInteropGUI
         {
             string json =   JsonConvert.SerializeObject(Preset, Formatting.Indented);
             File.WriteAllText("Preset.json", json);
+            MessageBox.Show("Saved as Preset.json");
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             BtnIterration++;
-            Button button = new Button();
-            Label label = new Label();
-            label.Location = new System.Drawing.Point(200, 100 * BtnIterration);
-            button.Text = $"Data{BtnIterration}";
-            button.Size = new Size(100, 100);
-            button.Location = new System.Drawing.Point(100, 100 * BtnIterration);
+            Button button = new Button { 
+                Text = Text = $"Data {BtnIterration}",
+                Size = new Size(100, 30),
+                Location = new System.Drawing.Point(100, 30 * BtnIterration)
+            };
+            Button Lbutton = new Button{
+                Text = $"Target File {BtnIterration}",
+                Size = new Size(100, 30),
+                Location = new System.Drawing.Point(300, 30 * BtnIterration)
+            };
+            Label label = new Label
+            {
+                Location = new System.Drawing.Point(200, 30 * BtnIterration)
+            };
+            Label Llabel = new Label
+            {
+                Location = new System.Drawing.Point(400, 30 * BtnIterration)
+            };
+            scrollPanel.Controls.Add(button);
+            scrollPanel.Controls.Add(label);
+            scrollPanel.Controls.Add(Lbutton);
+            scrollPanel.Controls.Add(Llabel);
+            scrollPanel.AutoScrollMinSize = new Size(Width, (30 + 50) * BtnIterration);
+            Debug.WriteLine($"Location of the Button {Lbutton.Location.X}, {Lbutton.Location.Y}");
             button.Click += (s, args) =>
             {
                 SelectDataForm select = new SelectDataForm();
@@ -54,15 +74,26 @@ namespace ExcelInteropGUI
                 select.FormClosed += (c, arg) => this.Show();
                 select.selectedData += tuple =>
                 {
-                    Preset.Add((tuple.CellVal.ToString(), tuple.rowInd,tuple.ColInd));
+                    Preset.Add((button.Text,tuple.CellVal.ToString(), tuple.rowInd,tuple.ColInd));
                     label.Text = tuple.CellVal.ToString();
                 };
                 select.Show();
                 this.Hide();
             };
+            Lbutton.Click += (s, args) => { 
+                SelectDataForm TSelect = new SelectDataForm();
+                TSelect.DatatoClick = TargetTable;
+                TSelect.FormClosed += (D, arg) => this.Show();
+                TSelect.selectedData += tuple =>
+                {
+                    Preset.Add((Lbutton.Text,tuple.CellVal.ToString(), tuple.rowInd, tuple.ColInd));
+                    Llabel.Text = tuple.CellVal.ToString();
+                };
+                TSelect.Show();
+                this.Hide();
+            };
             //Debug.WriteLine(yoffset);
-            scrollPanel.Controls.Add(button);
-            scrollPanel.Controls.Add(label);
+
             //yoffset += 100;
         }
 
