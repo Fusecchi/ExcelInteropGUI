@@ -186,7 +186,7 @@
             this.FolderBtn.Image = global::ExcelInteropGUI.Properties.Resources.Folder_Icon_Template_Design_Vector_Graphics_13725642_1__Custom_1;
             this.FolderBtn.Location = new System.Drawing.Point(736, 26);
             this.FolderBtn.Name = "FolderBtn";
-            this.FolderBtn.Size = new System.Drawing.Size(30, 30);
+            this.FolderBtn.Size = new System.Drawing.Size(38, 31);
             this.FolderBtn.TabIndex = 15;
             this.FolderBtn.UseVisualStyleBackColor = false;
             this.FolderBtn.Click += new System.EventHandler(this.FolderBtn_Click);

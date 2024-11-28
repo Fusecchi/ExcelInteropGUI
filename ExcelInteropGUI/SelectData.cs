@@ -37,8 +37,7 @@ namespace ExcelInteropGUI
 
         private void CellToChose_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            //selectedData?.Invoke((e.RowIndex+1,e.ColumnIndex, DatatoClick.Rows[e.RowIndex][e.ColumnIndex]));
-            //this.Close();
+
         }
 
         private void SelectDataForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -46,6 +45,12 @@ namespace ExcelInteropGUI
             CellToChose.DataSource = null;
             CellToChose.Rows.Clear();
             CellToChose.Columns.Clear();
+        }
+
+        private void CellToChose_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            selectedData?.Invoke((e.RowIndex + 1, e.ColumnIndex, DatatoClick.Rows[e.RowIndex][e.ColumnIndex]));
+            this.Close();
         }
     }
 }

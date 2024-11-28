@@ -47,7 +47,7 @@ namespace ExcelInteropGUI
         string Tp;
         bool TargetFileOpened;
         bool SourceFileClicked, TargetFileClicked;
-        List<(string setting, int PresetRow, int PresetCol)> preset;
+        List<(string index, string setting, int PresetRow, int PresetCol)> preset;
         public System.Data.DataTable DataTable { get; set; } = new System.Data.DataTable();
         public System.Data.DataTable TargetTable { get; set; } = new System.Data.DataTable();
         public Form1()
@@ -141,12 +141,15 @@ namespace ExcelInteropGUI
         }
         private void TargetSheet_SelectedIndexChanged(object sender, EventArgs e)
         {
+            OnFunctionStart?.Invoke("Resetting Table");
             TargetTable.Reset();
             selectedSheet = TargetSheet.SelectedIndex;
             ToSheet = PasteBook.Worksheet(selectedSheet + 1);
             To = ToSheet;
+            
             if (To.RangeUsed() != null)
             {
+                OnFunctionStart?.Invoke("Mapping Table");
                 var rows = To.RangeUsed(). RowsUsed();
                 int colCount = To.RangeUsed().ColumnCount();
                 for (int i = 0; i <=colCount; i++) {
@@ -530,7 +533,7 @@ namespace ExcelInteropGUI
         private void LoadPreset()
         {
             string json = File.ReadAllText("Preset.json");
-            preset = JsonConvert.DeserializeObject<List<(string setting, int PresetRow, int PresetCol)>>(json);
+            preset = JsonConvert.DeserializeObject<List<(string index, string setting,  int PresetRow, int PresetCol)>>(json);
         }
         private void SafeInvoke(System.Windows.Forms.Control control, Action uiUpdate)
         {
