@@ -37,8 +37,8 @@ namespace ExcelInteropGUI
 
         private void CellToChose_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            selectedData?.Invoke((e.RowIndex+1,e.ColumnIndex, DatatoClick.Rows[e.RowIndex][e.ColumnIndex]));
-            this.Close();
+            //selectedData?.Invoke((e.RowIndex+1,e.ColumnIndex, DatatoClick.Rows[e.RowIndex][e.ColumnIndex]));
+            //this.Close();
         }
 
         private void SelectDataForm_FormClosed(object sender, FormClosedEventArgs e)

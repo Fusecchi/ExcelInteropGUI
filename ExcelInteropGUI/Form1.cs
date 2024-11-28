@@ -19,6 +19,8 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using static ClosedXML.Excel.XLPredefinedFormat;
 using System.Threading;
 using Newtonsoft.Json;
+using DocumentFormat.OpenXml.Drawing;
+using Path = System.IO.Path;
 
 
 namespace ExcelInteropGUI
@@ -88,10 +90,11 @@ namespace ExcelInteropGUI
                 ofd.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.csv)|*.xls;*.xlsx;*.xlsm;*.csv";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    using(LoadingBar load = new LoadingBar(TargetFile, this))
+                    //TargetFile();
+                    using (LoadingBar load = new LoadingBar(TargetFile, this))
                     {
                         load.ShowDialog(this);
-                    } 
+                    }
                 }
             }
             catch (Exception ex)
@@ -138,9 +141,26 @@ namespace ExcelInteropGUI
         }
         private void TargetSheet_SelectedIndexChanged(object sender, EventArgs e)
         {
+            TargetTable.Reset();
             selectedSheet = TargetSheet.SelectedIndex;
             ToSheet = PasteBook.Worksheet(selectedSheet + 1);
             To = ToSheet;
+            if (To.RangeUsed() != null)
+            {
+                var rows = To.RangeUsed(). RowsUsed();
+                int colCount = To.RangeUsed().ColumnCount();
+                for (int i = 0; i <=colCount; i++) {
+                    TargetTable.Columns.Add();
+                }
+                foreach(var row in rows) 
+                {
+                    DataRow dataRow = TargetTable.NewRow();
+                    for (int i = 1; i <= colCount;i++) {
+                        dataRow[i-1] = row.Cell(i).Value;
+                    } 
+                    TargetTable.Rows.Add(dataRow);
+                }
+            }
         }
         private void SendButton_Click(object sender, EventArgs e)
         {
@@ -380,36 +400,14 @@ namespace ExcelInteropGUI
         }
         private void button1_Click(object sender, EventArgs e)
         {
-            using (LoadingBar load = new LoadingBar(() =>
-            {
-                OnFunctionStart?.Invoke("Making Table");
 
-                var LastRow = To.RangeUsed().RowCount();
-                var LastCol = To.RangeUsed().ColumnCount();
-                for (int i = 1; i <= LastCol; i++)
-                {
-                    DataTable.Columns.Add();
-                }
-                for (int i = 1; i <= LastRow; i++)
-                {
-                    DataRow row = DataTable.NewRow();
-                    for (int j = 1; j <= LastCol; j++)
-                    {
-                        row[j - 1] = To.Cell(i, j).Value.ToString();
-                        Debug.WriteLine(To.Cell(i, j).Value.ToString());
-                    }
-                    DataTable.Rows.Add(row);
-                }
-                Setting setting = new Setting();
+            OnFunctionStart?.Invoke("Making Table");
+            Setting setting = new Setting();
             setting.DataTable = DataTable;
             setting.TargetTable = TargetTable;
             setting.FormClosed += (s, args) => this.Show();
             setting.Show();
             this.Hide();
-            }, this))
-            {
-                load.ShowDialog();
-            }
 
         }
         private void TransferData()
@@ -470,6 +468,7 @@ namespace ExcelInteropGUI
                     TargetName.Text = Tn;
                     TargetSheet.SelectedIndex = 0;
                 });
+                //Process the file if the file has weird format
 
             }
             switch (Tn.ToUpper())
