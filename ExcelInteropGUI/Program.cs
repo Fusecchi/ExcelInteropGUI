@@ -14,10 +14,10 @@ namespace ExcelInteropGUI
         [STAThread]
         static void Main()
         {
-            ErrorHandling.Initialize();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            ErrorHandling.Initialize();
             Application.Run(new Form1());
         }
     }

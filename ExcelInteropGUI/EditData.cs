@@ -15,7 +15,7 @@ namespace ExcelInteropGUI
     public partial class EditWin : Form
     {
         public DataTable EditData { get; set; }
-        public event Action<DataTable> DataSaved;
+        public event Action<DataTable, List<(int ChangedRow, int ChangedCol, object ChangedVal)>> DataSaved;
         public static List<(int ChangedRow, int ChangedCol, object ChangedVal)> LocalLog = new List<(int ChangedRow, int ChangedCol, object ChangedVal)>();
         public List<EventLogEntry> EventLog = new List<EventLogEntry>();
         private bool changed;
@@ -34,28 +34,26 @@ namespace ExcelInteropGUI
             EditTable.AutoResizeColumn((int)DataGridViewAutoSizeColumnMode.AllCells);
             EditTable.Dock = DockStyle.Fill;
             EditTable.PerformLayout();
+            EditTable.Refresh();
+            EditTable.Invalidate();
             int newWidth = EditTable.Width+700;
             int newHeight = EditTable.Height;
             SaveEdit.Location = new Point(newWidth+20, SaveEdit.Location.Y);
             LogButton.Location = new Point(newWidth + 20, LogButton.Location.Y);
             CLoseButton.Location = new Point(newWidth + 20, CLoseButton.Location.Y);
-            //Debug.WriteLine($"current pos : ${SaveEdit.Location}");
-            //Debug.WriteLine($"current pos : ${CLoseButton.Location}");
-            //Debug.WriteLine($"The Height: { newHeight} The Width:{newWidth}");
-
             this.ClientSize = new Size(SaveEdit.Location.X+130, EditTable.Size.Height);
-            //Debug.WriteLine($"The Height: { this.ClientSize.Height} The Width:{this.ClientSize.Width}");
+
         }
 
         private void EditWin_FormClosed(object sender, FormClosedEventArgs e)
         {
-
+            EditTable.Dispose();
         }
 
         private void SaveEdit_Click(object sender, EventArgs e)
         {
             changed = false;
-            DataSaved?.Invoke(EditData);
+            DataSaved?.Invoke(EditData,LocalLog);
             MessageBox.Show("Succesfully Saved");
         }
 
@@ -70,7 +68,7 @@ namespace ExcelInteropGUI
 
             if (changed) 
             {
-                DialogResult ConfirmExit =  MessageBox.Show("Any Change won't be Saved",
+                DialogResult ConfirmExit =  MessageBox.Show("Are you sure you want to close?, any change won't be saved",
                     "Unsaved Change",
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Warning);
@@ -108,7 +106,17 @@ namespace ExcelInteropGUI
             EditLog editLog = new EditLog();
             editLog.Show();
             editLog.FormClosed += (s, args) => this.Show();
+            editLog.SelectedAction += _SelectedAction;
             this.Hide();
+        }
+        private void _SelectedAction(int RollBack)
+        {
+            foreach(var RB in SharedData.Log.AsEnumerable().Reverse())
+            {
+                EditData.Rows[RB.ChangedRow][RB.ChangedCol] = RB.ChangedVal;
+            }
+            SharedData.Log.RemoveRange(RollBack, SharedData.Log.Count);
+
         }
     }
 }

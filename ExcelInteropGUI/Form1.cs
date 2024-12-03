@@ -17,6 +17,11 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using static ClosedXML.Excel.XLPredefinedFormat;
+using System.Threading;
+using Newtonsoft.Json;
+using DocumentFormat.OpenXml.Drawing;
+using Path = System.IO.Path;
+
 
 namespace ExcelInteropGUI
 {
@@ -38,16 +43,31 @@ namespace ExcelInteropGUI
         //Cell address of the Blank FIle
         List<int> CellAddr = new List<int>();
         int DataChecker, TargetType;
+        public Action<string> OnFunctionStart;
+        string Tp;
+        string[] PresetAddr;
+        bool TargetFileOpened;
+        bool SourceFileClicked, TargetFileClicked;
+        List<(string index, string setting, int PresetRow, int PresetCol)> preset;
+        List<(string index, string setting, int PresetRow, int PresetCol)> GetAddrData = new List<(string index, string setting, int PresetRow, int PresetCol)>();
+        List<(string index, string setting, int PresetRow, int PresetCol)> GetAddrTarget = new List<(string index, string setting, int PresetRow, int PresetCol)>();
+        List<string> PresetPath = new List<string>();
+        public System.Data.DataTable DataTable { get; set; } = new System.Data.DataTable();
+        public System.Data.DataTable TargetTable { get; set; } = new System.Data.DataTable();
         public Form1()
         {
             InitializeComponent();
+            
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            LoadData();
             SendButton.Enabled = false;
             EditButton.Enabled = false;
-            
+            TargetFileOpened = false;
+            PresetAddr = Directory.GetFiles( Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Preset"), "*.json");
+            foreach (string p in PresetAddr) {
+                SelectPreset.Items.Add( Path.GetFileName(p));
+            }
         }
         private void SelectData_Click(object sender, EventArgs e)
         {
@@ -57,7 +77,10 @@ namespace ExcelInteropGUI
                 ofd.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.csv)|*.xls;*.xlsx;*.xlsm;*.csv";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    LoadData();
+                    using (LoadingBar load = new LoadingBar(LoadData, this))
+                    {
+                        load.ShowDialog(this);
+                    }
                 }
             }
             catch (Exception ex)
@@ -75,7 +98,11 @@ namespace ExcelInteropGUI
                 ofd.Filter = "Excel Files (*.xls;*.xlsx;*.xlsm;*.csv)|*.xls;*.xlsx;*.xlsm;*.csv";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    TargetFile();
+                    //TargetFile();
+                    using (LoadingBar load = new LoadingBar(TargetFile, this))
+                    {
+                        load.ShowDialog(this);
+                    }
                 }
             }
             catch (Exception ex)
@@ -115,7 +142,6 @@ namespace ExcelInteropGUI
                 }
             }
         }
-
         private void ResetButton_Click(object sender, EventArgs e)
         {
             ResetData();
@@ -123,11 +149,30 @@ namespace ExcelInteropGUI
         }
         private void TargetSheet_SelectedIndexChanged(object sender, EventArgs e)
         {
+            OnFunctionStart?.Invoke("Resetting Table");
+            TargetTable.Reset();
             selectedSheet = TargetSheet.SelectedIndex;
             ToSheet = PasteBook.Worksheet(selectedSheet + 1);
             To = ToSheet;
+            
+            if (To.RangeUsed() != null)
+            {
+                OnFunctionStart?.Invoke("Mapping Table");
+                var rows = To.RangeUsed(). RowsUsed();
+                int colCount = To.RangeUsed().ColumnCount();
+                for (int i = 0; i <=colCount; i++) {
+                    TargetTable.Columns.Add();
+                }
+                foreach(var row in rows) 
+                {
+                    DataRow dataRow = TargetTable.NewRow();
+                    for (int i = 1; i <= colCount;i++) {
+                        dataRow[i-1] = row.Cell(i).Value;
+                    } 
+                    TargetTable.Rows.Add(dataRow);
+                }
+            }
         }
-
         private void SendButton_Click(object sender, EventArgs e)
         {
             try
@@ -137,11 +182,21 @@ namespace ExcelInteropGUI
                     MessageBox.Show("Selected File Isn't Compatible");
                     return;
                 }
-                TransferData();
-                PasteBook.Save();
+                if (TargetFileOpened)
+                {
+                    MessageBox.Show("File Is being Opened Please Close it!", "Open File Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                using(LoadingBar load = new LoadingBar(TransferData, this))
+                {
+                    load.ShowDialog();
+                }
                 if (Converted)
                 {
-                    SaveBacktoCSV();
+                    using (LoadingBar load = new LoadingBar(SaveBacktoCSV, this))
+                    {
+                        load.ShowDialog();
+                    }
                 }
                 MessageBox.Show($"Operation Finished");
             }
@@ -193,6 +248,7 @@ namespace ExcelInteropGUI
         }
         private void LoadData()
         {
+            OnFunctionStart?.Invoke("Clean the Data");
             ResetData();
             //The File Path of the selected file
             string fp = ofd.FileName;
@@ -203,50 +259,78 @@ namespace ExcelInteropGUI
                 //Check if the file is CSV extension
                 if (fp.EndsWith(".csv"))
                 {
+                    OnFunctionStart?.Invoke("Processing CSV");
                     CSVConvert();
                     fp = ConvertFromCSV;
                 }
                 //Setup for the Workbook Data
-                FileName.Text = fn;
+                SafeInvoke(FileName, () =>
+                {
+                    FileName.Text = fn;
+                });
+
                 workbook = new XLWorkbook(fp);
-                workbook.CalculateMode = XLCalculateMode.Manual;
+                //workbook.CalculateMode = XLCalculateMode.Manual;
                 sheet = workbook.Worksheet(1);
                 From = sheet;
                 var lastRow = sheet.LastRowUsed().RowNumber();
                 var lastCol = sheet.LastColumnUsed().ColumnNumber();
                 var DataRange = sheet.Range(2, 1, lastRow, lastCol);
+                for(int i = 1; i <= lastCol; i++)
+                {
+                    DataTable.Columns.Add();
+                }
+                for (int i = 0; i < lastRow; i++)
+                {
+                    DataRow row = DataTable.NewRow();
+                    for (int j = 0; j<lastCol; j++) 
+                    {
+                        row[j] = From.Cell(i+1, j+1).Value;
+                    }
+                    DataTable.Rows.Add(row);
+                }
                 //Check the validity off all the data for contamination
+                OnFunctionStart?.Invoke("Checking For Contamination");
                 for (int i = 0; i < lastRow - 1; i++)
                 {
                     if (!sheet.Cell(2, 1).Value.Equals(sheet.Cell(2 + i, 1).Value))
                     {
                         MessageBox.Show($"Cell in: {sheet.Cell(2 + i, 1)} has value of: {sheet.Cell(2 + i, 1).Value}");
                         fp = null;
-                        FileName.Text = null;
+                        SafeInvoke(FileName, () =>
+                        {
+                            FileName.Text = null;
+                        });
                         return;
                     }
                 }
-                FileType.Text = sheet.Cell(2, 1).Value.ToString();                
-                DetectBlank(DataRange,lastCol);
-                EditButton.Enabled = CellAddr.Count > 0;
+                OnFunctionStart?.Invoke("Checking For Blank");
+                DetectBlank(DataRange, lastCol);
+                SafeInvoke(FileType, () =>
+                {
+                    FileType.Text = sheet.Cell(2, 1).Value.ToString();
+                    EditButton.Enabled = CellAddr.Count> 0;
+                });
+                OnFunctionStart?.Invoke("Determining the File");
                 //Check if the the data and the targetfile is the samefile
                 switch (fn.ToUpper())
                 {
                    case string s when s.Contains("MITSUBISHI"):
                         DataChecker = 1;
-                        Debug.WriteLine("DataChecker 1");
                         break;
                     case string s when s.Contains("KOMATSU"):
                         DataChecker = 2;
-                        Debug.WriteLine("DataChecker 2");
                         break;
                     case string s when s.Contains("ASTES"):
                         DataChecker= 3;
-                        Debug.WriteLine("DataChecker 3");
                         break;
                     
                 }
-                
+                SourceFileClicked =true;
+                SafeInvoke(this, () =>
+                {
+                    CheckSendBtn();
+                });
             }
         }
         //Detect the blank in the file 
@@ -281,7 +365,6 @@ namespace ExcelInteropGUI
                 EditData.Rows.Add(row);
             }
         }
-
         private void SaveBacktoCSV()
         {
             StringBuilder CSVConv = new StringBuilder();
@@ -303,81 +386,148 @@ namespace ExcelInteropGUI
             int dotPos = ConvertFromCSV.LastIndexOf("\\");
             ConvertFromCSV = ConvertFromCSV.Substring(0, dotPos) + "\\" + FileType.Text + " " + BatchDate + ".CSV";
             File.WriteAllText(ConvertFromCSV, CSVConv.ToString());
+            if (File.Exists(ConvertFromCSV))
+            {
+                File.Delete(ConvertFromCSV);
+            }
 
         }
-        private void editwin_Datasaved(System.Data.DataTable updatedTable)
+        private void editwin_Datasaved(System.Data.DataTable updatedTable, List<(int ChangedRow, int ChangedCol, object ChangedVal)> values)
         {
             //This Function will run when the event is raised
             //The table from Editwin will Replace the EditData
             EditData = updatedTable;
             //Save the changed value in the list below
-            HashSet<int> EditedTable = new HashSet<int>();
-            foreach (DataRow row in EditData.Rows) 
+            foreach(var item in values)
             {
-                //Save the Row in EditedTable list if it doesnt exist
-                if (!EditedTable.Contains(EditData.Rows.IndexOf(row)))
-                {
-                    EditedTable.Add(EditData.Rows.IndexOf(row));
-                }
-                foreach (DataColumn col in EditData.Columns) {
-                    //If the said Row Has Blank remove the Row from list
-
-                    if (row[col] == DBNull.Value || string.IsNullOrWhiteSpace(row[col].ToString()))
-                    {
-                        EditedTable.Remove(EditData.Rows.IndexOf(row));
-                        break ;
-                    }
-                }
+                From.Cell(item.ChangedRow+1,item.ChangedCol+1).Value = updatedTable.Rows[item.ChangedRow][item.ChangedCol].ToString();
             }
 
-            //Replace the Row of the original data with the row of the Edited Value from user
-            //It replace the row by replacing detecting the index of the non blank row and get the row address from celladdr
-            foreach (var index in EditedTable)
-            {
-                foreach(DataColumn colins in EditData.Columns) 
-                {
-                    var x = CellAddr[index];
-                    var y = EditData.Columns.IndexOf(colins)+1;
-                    From.Cell(x, y).Value = EditData.Rows[index][colins]?.ToString();
-                }
-            }
+        }
+        private void FolderBtn_Click(object sender, EventArgs e)
+        {
+            Process.Start(Tp);
+            TargetFileOpened = true;
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
 
-            EditedTable.Clear();
+            OnFunctionStart?.Invoke("Making Table");
+            Setting setting = new Setting();
+            setting.DataTable = DataTable;
+            setting.to = FileName.Text;
+            setting.from = TargetName.Text;
+            setting.TargetTable = TargetTable;
+            setting.FormClosed += (s, args) => this.Show();
+            setting.Show();
+            this.Hide();
+
         }
         private void TransferData()
         {
             var LastRowTo = From.LastRowUsed().RowNumber();
-            for (var row = 0; row < LastRowTo; row++)
-            {
-                To.Cell(17 + row, 3).Value = From.Cell(2 + row, 4).Value; //板厚
-                To.Cell(17 + row, 7).Value = From.Cell(2 + row, 5).Value; //寸法W
-                To.Cell(17 + row, 8).Value = From.Cell(2 + row, 6).Value; //寸法H
-                To.Cell(17 + row, 14).Value = From.Cell(2 + row, 7).Value; //歩留
-                string CleanTimeData = From.Cell(2 + row, 9).Value.ToString();
-                var CharToRemove = "()（）分";
-                foreach (char c in CharToRemove)
+            foreach(var item in GetAddrData)
+                for (var row = 0; row < LastRowTo - 1; row++)
                 {
-                    CleanTimeData = CleanTimeData.Replace(c.ToString(), "");
+                    for(int i = 0; i<GetAddrTarget.Count(); i++)
+                    {
+                        if (
+                            GetAddrTarget[i].PresetRow.Equals(0) || 
+                            GetAddrTarget[i].PresetCol.Equals(0) || 
+                            GetAddrData[i].PresetRow.Equals(0) || 
+                            GetAddrData[i].PresetCol.Equals(0))
+                        {
+                            continue;
+                        }
+                        To.Cell(GetAddrTarget[i].PresetRow + row, GetAddrTarget[i].PresetCol).Value =
+                            From.Cell(GetAddrData[i].PresetRow+row, GetAddrData[i].PresetCol).Value;
+                    }
                 }
-                To.Cell(17 + row, 12).Value = CleanTimeData; //三菱加工時間
+            OnFunctionStart?.Invoke("Saving Book");
+            PasteBook.Save();
+        }
+        private void Refreshbtn_Click(object sender, EventArgs e)
+        {
+            SelectPreset.Items.Clear();
+            PresetAddr = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset"), "*.json");
+            foreach (string p in PresetAddr)
+            {
+                SelectPreset.Items.Add(Path.GetFileName(p));
             }
+
+        }
+        private void SelectPreset_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string json = File.ReadAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset",SelectPreset.SelectedItem.ToString())}");
+            preset = JsonConvert.DeserializeObject<List<(string index, string setting, int PresetRow, int PresetCol)>>(json);
+            GetAddrData.Clear();
+            GetAddrTarget.Clear();
+            int Highest = preset.Select(t => int.Parse(t.index.Last().ToString())).Max();
+            for (int i = 0; i < Highest; i++)
+            {
+                GetAddrData.Add(("0", "0", 0, 0));
+                GetAddrTarget.Add(("0", "0", 0, 0));
+            }
+            foreach (var item in preset)
+            {
+                if (item.index.Contains("Data"))
+                {
+                    GetAddrData[int.Parse(item.index.Last().ToString()) - 1] = item;
+                }
+                else
+                {
+                    GetAddrTarget[int.Parse(item.index.Last().ToString()) - 1] = item;
+                }
+            }
+        }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if(SelectPreset.SelectedItem == null)
+            {
+                MessageBox.Show("No File to be deleted!!");
+            }
+            else
+            {
+                DialogResult deleteconfirmation = MessageBox.Show($"Are you sure you want to delete {SelectPreset.SelectedItem}",
+                    "Unsaved Change",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                switch (deleteconfirmation)
+                {
+                    case DialogResult.Yes:
+                        File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset", SelectPreset.SelectedItem.ToString()));
+                        break;
+                    case DialogResult.No:
+                        return;
+                }
+            }
+
         }
         private void TargetFile()
         {
+            OnFunctionStart?.Invoke("Resetting the data");
             ResetTarget();
-            string Tp = ofd.FileName;
+            Tp = ofd.FileName;
             string Tn = Path.GetFileName(Tp);
+            OnFunctionStart?.Invoke("Reading the File");
             if (!string.IsNullOrEmpty(Tp))
             {
                 PasteBook = new XLWorkbook(Tp);
-                PasteBook.CalculateMode = XLCalculateMode.Manual;
-                TargetName.Text = Tn;
+                PasteBook.CalculateMode = XLCalculateMode.Auto;
+                OnFunctionStart?.Invoke("Reading the Sheets");
                 foreach (var Sheet in PasteBook.Worksheets)
                 {
-                    TargetSheet.Items.Add(Sheet);
+                    SafeInvoke(TargetSheet, () =>
+                    {
+                        TargetSheet.Items.Add(Sheet);
+                    });
                 }
-                TargetSheet.SelectedIndex = 0;
-                SendButton.Enabled = true;
+                SafeInvoke(this, () =>
+                {
+                    TargetName.Text = Tn;
+                    TargetSheet.SelectedIndex = 0;
+                });
+                //Process the file if the file has weird format
 
             }
             switch (Tn.ToUpper())
@@ -393,30 +543,59 @@ namespace ExcelInteropGUI
                     break;
 
             }
+            TargetFileClicked = true;
+            SafeInvoke(this, () =>
+            {
+                CheckSendBtn();
+            });
+        }
+        private void CheckSendBtn()
+        {
+            if (TargetFileClicked && SourceFileClicked) SendButton.Enabled = true;
         }
         private void ResetData() 
         {
             From = null;
             sheet = null;
+            Tp = null;
             workbook = null;
             Converted = false;
             ConvertFromCSV = null;
-            FileType.Clear();
-            FileName.Clear();
+            SafeInvoke(this, () =>
+            {
+                FileType.Clear();
+                FileName.Clear();
+                EditButton.Enabled = false;
+            });
+            DataTable.Reset();
             CellAddr.Clear();
-            EditButton.Enabled = false;
             Converted = false;
             EditData.Reset();
             TempTableToConvert.Reset();
+            SourceFileClicked = false;
         }
         private void ResetTarget() 
         {
             To = null;
-            TargetSheet.Items.Clear();
+            SafeInvoke(this, () =>
+            {
+                TargetSheet.Items.Clear();
+                TargetName.Clear();
+            });
             ToSheet = null;
             PasteBook = null;
-            TargetName.Clear();
-
+            TargetFileClicked = false;
         }
+        private void SafeInvoke(System.Windows.Forms.Control control, Action uiUpdate)
+        {
+            if (control.InvokeRequired)
+            {
+                control.Invoke(uiUpdate);
+            }
+            else { 
+            uiUpdate();
+            }
+        }
+
     }
 }

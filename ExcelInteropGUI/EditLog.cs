@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,8 @@ namespace ExcelInteropGUI
 {
     public partial class EditLog : Form
     {
-
+        private int SelectedRB;
+        public Action<int> SelectedAction;
         public EditLog()
         {
             InitializeComponent();
@@ -20,32 +22,17 @@ namespace ExcelInteropGUI
 
         private void EditLog_Load(object sender, EventArgs e)
         {
-            ShowLogText.Multiline = true;
             for (int i = 0; i<SharedData.Log.Count; i++ )
             {
                 if (SharedData.NewValues[i].ChangedVal.ToString() == "" || SharedData.NewValues[i].ChangedVal.ToString() == "0")
                 {
-                    ShowLogText.SelectionColor = Color.Red;
-                    ShowLogText.AppendText($"{SharedData.NewValues[i].EdittedTime} Deleted The Value in Row {SharedData.Log[i].ChangedRow} Collumn {SharedData.Log[i].ChangedCol} \n");
+                    listBox1.Items.Add($"{SharedData.NewValues[i].EdittedTime} Deleted The Value in Row {SharedData.Log[i].ChangedRow} Collumn {SharedData.Log[i].ChangedCol} \n");
                 }
                 else
                 {
-                    ShowLogText.SelectionColor = Color.Black;
-                    ShowLogText.AppendText($"{SharedData.NewValues[i].EdittedTime} Changed The Value in Row: ");
-                    ShowLogText.SelectionColor = Color.Blue;
-                    ShowLogText.AppendText($"{SharedData.Log[i].ChangedRow} ");
-                    ShowLogText.SelectionColor = Color.Black;
-                    ShowLogText.AppendText($"Collumn: ");
-                    ShowLogText.SelectionColor = Color.Blue;
-                    ShowLogText.AppendText($"{SharedData.Log[i].ChangedCol} ");
-                    ShowLogText.SelectionColor = Color.Black;
-                    ShowLogText.AppendText($"From: ");
-                    ShowLogText.SelectionColor = Color.Blue;
-                    ShowLogText.AppendText($"{SharedData.Log[i].ChangedVal} ");
-                    ShowLogText.SelectionColor = Color.Black;
-                    ShowLogText.AppendText($"To: ");
-                    ShowLogText.SelectionColor = Color.Blue;
-                    ShowLogText.AppendText($"{SharedData.NewValues[i].ChangedVal} \n");
+                    listBox1.Items.Add($"{SharedData.NewValues[i].EdittedTime} Changed The Value in Row: " +
+                        $"{SharedData.Log[i].ChangedRow} Collumn:{SharedData.Log[i].ChangedCol} From: {SharedData.Log[i].ChangedVal}" +
+                        $"To: {SharedData.NewValues[i].ChangedVal}");
                 }
 
             }
@@ -53,6 +40,19 @@ namespace ExcelInteropGUI
 
         private void CloseEditLog_Click(object sender, EventArgs e)
         {
+            this.Close();
+        }
+
+        private void listBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left) {
+                SelectedRB = listBox1.SelectedIndex;
+            }
+        }
+
+        private void Rollback_Click(object sender, EventArgs e)
+        {
+            SelectedAction?.Invoke(SelectedRB);
             this.Close();
         }
     }
