@@ -32,6 +32,7 @@ namespace ExcelInteropGUI
             {
                 width += column.Width;
             }
+            if (width > 800) width = 800;
             this.ClientSize = new Size(width, CellToChose.Height);
         }
 

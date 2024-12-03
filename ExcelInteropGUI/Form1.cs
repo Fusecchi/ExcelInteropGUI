@@ -46,7 +46,6 @@ namespace ExcelInteropGUI
         public Action<string> OnFunctionStart;
         string Tp;
         string[] PresetAddr;
-        bool TargetFileOpened;
         bool SourceFileClicked, TargetFileClicked;
         List<(string index, string setting, int PresetRow, int PresetCol)> preset;
         List<(string index, string setting, int PresetRow, int PresetCol)> GetAddrData = new List<(string index, string setting, int PresetRow, int PresetCol)>();
@@ -63,7 +62,6 @@ namespace ExcelInteropGUI
         {
             SendButton.Enabled = false;
             EditButton.Enabled = false;
-            TargetFileOpened = false;
             PresetAddr = Directory.GetFiles( Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Preset"), "*.json");
             foreach (string p in PresetAddr) {
                 SelectPreset.Items.Add( Path.GetFileName(p));
@@ -150,28 +148,10 @@ namespace ExcelInteropGUI
         private void TargetSheet_SelectedIndexChanged(object sender, EventArgs e)
         {
             OnFunctionStart?.Invoke("Resetting Table");
-            TargetTable.Reset();
+            DataTable.Reset(); // Ensure this is efficient
             selectedSheet = TargetSheet.SelectedIndex;
             ToSheet = PasteBook.Worksheet(selectedSheet + 1);
             To = ToSheet;
-            
-            if (To.RangeUsed() != null)
-            {
-                OnFunctionStart?.Invoke("Mapping Table");
-                var rows = To.RangeUsed(). RowsUsed();
-                int colCount = To.RangeUsed().ColumnCount();
-                for (int i = 0; i <=colCount; i++) {
-                    TargetTable.Columns.Add();
-                }
-                foreach(var row in rows) 
-                {
-                    DataRow dataRow = TargetTable.NewRow();
-                    for (int i = 1; i <= colCount;i++) {
-                        dataRow[i-1] = row.Cell(i).Value;
-                    } 
-                    TargetTable.Rows.Add(dataRow);
-                }
-            }
         }
         private void SendButton_Click(object sender, EventArgs e)
         {
@@ -182,11 +162,7 @@ namespace ExcelInteropGUI
                     MessageBox.Show("Selected File Isn't Compatible");
                     return;
                 }
-                if (TargetFileOpened)
-                {
-                    MessageBox.Show("File Is being Opened Please Close it!", "Open File Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+ 
                 using(LoadingBar load = new LoadingBar(TransferData, this))
                 {
                     load.ShowDialog();
@@ -407,7 +383,6 @@ namespace ExcelInteropGUI
         private void FolderBtn_Click(object sender, EventArgs e)
         {
             Process.Start(Tp);
-            TargetFileOpened = true;
         }
         private void button1_Click(object sender, EventArgs e)
         {
@@ -415,8 +390,8 @@ namespace ExcelInteropGUI
             OnFunctionStart?.Invoke("Making Table");
             Setting setting = new Setting();
             setting.DataTable = DataTable;
-            setting.to = FileName.Text;
-            setting.from = TargetName.Text;
+            setting.to = TargetName.Text;
+            setting.from = FileName.Text;
             setting.TargetTable = TargetTable;
             setting.FormClosed += (s, args) => this.Show();
             setting.Show();
@@ -548,6 +523,32 @@ namespace ExcelInteropGUI
             {
                 CheckSendBtn();
             });
+            if (To.RangeUsed() != null)
+            {
+                OnFunctionStart?.Invoke("Mapping Table");
+                var lastrow = To.LastRowUsed().RowNumber();
+                var lastcol = To.LastColumnUsed().ColumnNumber();
+
+
+                // Add columns to the DataTable
+                for (int i = 0; i < lastcol; i++)
+                {
+                    TargetTable.Columns.Add();
+                }
+
+                for (int i = 1; i <= lastrow; i++) // Use 1-based index for rows
+                {
+                    DataRow datarow = TargetTable.NewRow();
+                    for (int j = 1; j <= lastcol; j++) // Use 1-based index for columns
+                    {
+                        var cellValue = To.Cell(i,j).Value; // Store cell value in a variable
+                        Debug.WriteLine($"The Value in table Rows {i} Col {j} is {cellValue}");
+                        datarow[j - 1] = cellValue; // Adjust for 0-based index in DataRow
+                    }
+                    TargetTable.Rows.Add(datarow);
+                }
+
+            }
         }
         private void CheckSendBtn()
         {
