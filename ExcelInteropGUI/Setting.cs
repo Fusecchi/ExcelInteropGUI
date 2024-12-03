@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Path = System.IO.Path;
 
 
 namespace ExcelInteropGUI
@@ -23,21 +25,24 @@ namespace ExcelInteropGUI
         public List<(string DataIndex, string setting, int PresetRow, int PresetCol)> Preset { get; set; } = new List<(string DataIndex, string setting, int PresetRow, int PresetCol)>();
         private int BtnIterration = 0;
         private Panel scrollPanel = new Panel();
+        public string from, to;
         //private int yoffset = 20;
         public Setting()
         {
             InitializeComponent();
-            scrollPanel.AutoScroll = true;  // Enable scrolling
-            scrollPanel.Dock = DockStyle.Fill;  // Dock the panel to fill the form
-            this.Controls.Add(scrollPanel);
         }
         
 
         private void button1_Click(object sender, EventArgs e)
         {
             string json =   JsonConvert.SerializeObject(Preset, Formatting.Indented);
-            File.WriteAllText("Preset.json", json);
-            MessageBox.Show("Saved as Preset.json");
+            if (string.IsNullOrEmpty(textBox1.Text))
+            {
+                MessageBox.Show("File Name Can't be Empty");
+                return;
+            }
+            File.WriteAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset",textBox1.Text)}.json", json);
+            MessageBox.Show($"Saved as {textBox1.Text}.json");
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -74,7 +79,7 @@ namespace ExcelInteropGUI
                 select.FormClosed += (c, arg) => this.Show();
                 select.selectedData += tuple =>
                 {
-                    Preset.Add((button.Text,tuple.CellVal.ToString(), tuple.rowInd,tuple.ColInd));
+                    Preset.Add((button.Text,tuple.CellVal.ToString(), tuple.rowInd+1,tuple.ColInd+1));
                     label.Text = tuple.CellVal.ToString();
                 };
                 select.Show();
@@ -86,7 +91,7 @@ namespace ExcelInteropGUI
                 TSelect.FormClosed += (D, arg) => this.Show();
                 TSelect.selectedData += tuple =>
                 {
-                    Preset.Add((Lbutton.Text,tuple.CellVal.ToString(), tuple.rowInd, tuple.ColInd));
+                    Preset.Add((Lbutton.Text,tuple.CellVal.ToString(), tuple.rowInd+1, tuple.ColInd + 1));
                     Llabel.Text = tuple.CellVal.ToString();
                 };
                 TSelect.Show();
@@ -100,6 +105,15 @@ namespace ExcelInteropGUI
         private void CloseBtn_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void Setting_Load(object sender, EventArgs e)
+        {
+            scrollPanel.AutoScroll = true;  // Enable scrolling
+            scrollPanel.Dock = DockStyle.Fill;  // Dock the panel to fill the form
+            this.Controls.Add(scrollPanel);
+            FromName.Text = from;
+            ToName.Text = to;
         }
 
         private void Setting_FormClosed(object sender, FormClosedEventArgs e)

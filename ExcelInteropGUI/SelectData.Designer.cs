@@ -43,6 +43,7 @@
             this.CellToChose.TabIndex = 0;
             this.CellToChose.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.CellToChose_CellClick);
             this.CellToChose.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.CellToChose_CellDoubleClick);
+            this.CellToChose.CellMouseDoubleClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.CellToChose_CellMouseDoubleClick);
             // 
             // SelectDataForm
             // 

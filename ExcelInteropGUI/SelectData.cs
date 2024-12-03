@@ -49,7 +49,12 @@ namespace ExcelInteropGUI
 
         private void CellToChose_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            selectedData?.Invoke((e.RowIndex + 1, e.ColumnIndex, DatatoClick.Rows[e.RowIndex][e.ColumnIndex]));
+
+        }
+
+        private void CellToChose_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            selectedData?.Invoke((e.RowIndex, e.ColumnIndex, DatatoClick.Rows[e.RowIndex][e.ColumnIndex]));
             this.Close();
         }
     }

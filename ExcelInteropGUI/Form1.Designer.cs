@@ -43,8 +43,9 @@
             this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.FolderBtn = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.RefreshPreset = new System.Windows.Forms.Button();
+            this.DeleteBtn = new System.Windows.Forms.Button();
+            this.SelectPreset = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // SelectData
@@ -165,7 +166,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(447, 156);
+            this.label2.Location = new System.Drawing.Point(484, 253);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(44, 16);
             this.label2.TabIndex = 14;
@@ -192,33 +193,44 @@
             this.FolderBtn.UseVisualStyleBackColor = false;
             this.FolderBtn.Click += new System.EventHandler(this.FolderBtn_Click);
             // 
-            // button2
+            // RefreshPreset
             // 
-            this.button2.Location = new System.Drawing.Point(211, 207);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(90, 24);
-            this.button2.TabIndex = 17;
-            this.button2.Text = "button2";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.RefreshPreset.Location = new System.Drawing.Point(383, 153);
+            this.RefreshPreset.Name = "RefreshPreset";
+            this.RefreshPreset.Size = new System.Drawing.Size(77, 24);
+            this.RefreshPreset.TabIndex = 17;
+            this.RefreshPreset.Text = "Refresh";
+            this.RefreshPreset.UseVisualStyleBackColor = true;
+            this.RefreshPreset.Click += new System.EventHandler(this.Refreshbtn_Click);
             // 
-            // button3
+            // DeleteBtn
             // 
-            this.button3.Location = new System.Drawing.Point(364, 208);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(96, 24);
-            this.button3.TabIndex = 18;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.DeleteBtn.Location = new System.Drawing.Point(520, 152);
+            this.DeleteBtn.Name = "DeleteBtn";
+            this.DeleteBtn.Size = new System.Drawing.Size(77, 25);
+            this.DeleteBtn.TabIndex = 18;
+            this.DeleteBtn.Text = "Delete";
+            this.DeleteBtn.UseVisualStyleBackColor = true;
+            this.DeleteBtn.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // SelectPreset
+            // 
+            this.SelectPreset.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.SelectPreset.FormattingEnabled = true;
+            this.SelectPreset.Location = new System.Drawing.Point(155, 153);
+            this.SelectPreset.Name = "SelectPreset";
+            this.SelectPreset.Size = new System.Drawing.Size(196, 24);
+            this.SelectPreset.TabIndex = 19;
+            this.SelectPreset.SelectedIndexChanged += new System.EventHandler(this.SelectPreset_SelectedIndexChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(786, 400);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.SelectPreset);
+            this.Controls.Add(this.DeleteBtn);
+            this.Controls.Add(this.RefreshPreset);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.FolderBtn);
             this.Controls.Add(this.label2);
@@ -260,8 +272,9 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button FolderBtn;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button RefreshPreset;
+        private System.Windows.Forms.Button DeleteBtn;
+        private System.Windows.Forms.ComboBox SelectPreset;
     }
 }
 

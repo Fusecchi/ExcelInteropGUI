@@ -45,11 +45,13 @@ namespace ExcelInteropGUI
         int DataChecker, TargetType;
         public Action<string> OnFunctionStart;
         string Tp;
+        string[] PresetAddr;
         bool TargetFileOpened;
         bool SourceFileClicked, TargetFileClicked;
         List<(string index, string setting, int PresetRow, int PresetCol)> preset;
         List<(string index, string setting, int PresetRow, int PresetCol)> GetAddrData = new List<(string index, string setting, int PresetRow, int PresetCol)>();
         List<(string index, string setting, int PresetRow, int PresetCol)> GetAddrTarget = new List<(string index, string setting, int PresetRow, int PresetCol)>();
+        List<string> PresetPath = new List<string>();
         public System.Data.DataTable DataTable { get; set; } = new System.Data.DataTable();
         public System.Data.DataTable TargetTable { get; set; } = new System.Data.DataTable();
         public Form1()
@@ -62,6 +64,10 @@ namespace ExcelInteropGUI
             SendButton.Enabled = false;
             EditButton.Enabled = false;
             TargetFileOpened = false;
+            PresetAddr = Directory.GetFiles( Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Preset"), "*.json");
+            foreach (string p in PresetAddr) {
+                SelectPreset.Items.Add( Path.GetFileName(p));
+            }
         }
         private void SelectData_Click(object sender, EventArgs e)
         {
@@ -409,6 +415,8 @@ namespace ExcelInteropGUI
             OnFunctionStart?.Invoke("Making Table");
             Setting setting = new Setting();
             setting.DataTable = DataTable;
+            setting.to = FileName.Text;
+            setting.from = TargetName.Text;
             setting.TargetTable = TargetTable;
             setting.FormClosed += (s, args) => this.Show();
             setting.Show();
@@ -421,99 +429,77 @@ namespace ExcelInteropGUI
             foreach(var item in GetAddrData)
                 for (var row = 0; row < LastRowTo - 1; row++)
                 {
-                    //for(int item = 0)
-                    //{
-                    //    To.Cell(item.PresetRow+row, item.PresetCol).Value = From.Cell(item.PresetRow + row, item.PresetCol).Value;
-
-                    //}
-
-                    //float code = float.Parse(From.Cell(2 + row, 4).Value.ToString());
-                    //OnFunctionStart?.Invoke($"Fill in 板厚 on {To.Name} in Cell: {GetAddrData}");
-                    //To.Cell(17 + row, 3).Value = code; //板厚
-                    //OnFunctionStart?.Invoke($"Fill in 寸法W on {To.Name} in Cell: {To.Cell(17 + row, 7).Address}");
-                    //To.Cell(17 + row, 7).Value = From.Cell(2 + row, 5).Value; //寸法W
-                    //OnFunctionStart?.Invoke($"Fill in 寸法H on {To.Name} in Cell: {To.Cell(17 + row, 8).Address}");
-                    //To.Cell(17 + row, 8).Value = From.Cell(2 + row, 6).Value; //寸法H
-                    //OnFunctionStart?.Invoke($"Fill in 歩留 on {To.Name} in Cell: {To.Cell(17 + row, 14).Address}");
-                    //To.Cell(17 + row, 14).Value = From.Cell(2 + row, 7).Value; //歩留
-                    //OnFunctionStart?.Invoke($"Fill in 三菱加工時間 on {To.Name} in Cell: {To.Cell(17 + row, 12).Address}");
-                    //string CleanTimeData = From.Cell(2 + row, 9).Value.ToString();
-                    //var CharToRemove = "()（）分";
-                    //foreach (char c in CharToRemove)
-                    //{
-                    //    CleanTimeData = CleanTimeData.Replace(c.ToString(), "");
-                    //}
-                    //To.Cell(17 + row, 12).Value = CleanTimeData; //三菱加工時間
+                    for(int i = 0; i<GetAddrTarget.Count(); i++)
+                    {
+                        if (
+                            GetAddrTarget[i].PresetRow.Equals(0) || 
+                            GetAddrTarget[i].PresetCol.Equals(0) || 
+                            GetAddrData[i].PresetRow.Equals(0) || 
+                            GetAddrData[i].PresetCol.Equals(0))
+                        {
+                            continue;
+                        }
+                        To.Cell(GetAddrTarget[i].PresetRow + row, GetAddrTarget[i].PresetCol).Value =
+                            From.Cell(GetAddrData[i].PresetRow+row, GetAddrData[i].PresetCol).Value;
+                    }
                 }
             OnFunctionStart?.Invoke("Saving Book");
             PasteBook.Save();
         }
-        private void button2_Click(object sender, EventArgs e)
+        private void Refreshbtn_Click(object sender, EventArgs e)
         {
-            LoadPreset();
-            foreach (var Item in preset)
+            SelectPreset.Items.Clear();
+            PresetAddr = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset"), "*.json");
+            foreach (string p in PresetAddr)
             {
-                Debug.WriteLine(Item);
+                SelectPreset.Items.Add(Path.GetFileName(p));
+            }
+
+        }
+        private void SelectPreset_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string json = File.ReadAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset",SelectPreset.SelectedItem.ToString())}");
+            preset = JsonConvert.DeserializeObject<List<(string index, string setting, int PresetRow, int PresetCol)>>(json);
+            GetAddrData.Clear();
+            GetAddrTarget.Clear();
+            int Highest = preset.Select(t => int.Parse(t.index.Last().ToString())).Max();
+            for (int i = 0; i < Highest; i++)
+            {
+                GetAddrData.Add(("0", "0", 0, 0));
+                GetAddrTarget.Add(("0", "0", 0, 0));
+            }
+            foreach (var item in preset)
+            {
+                if (item.index.Contains("Data"))
+                {
+                    GetAddrData[int.Parse(item.index.Last().ToString()) - 1] = item;
+                }
+                else
+                {
+                    GetAddrTarget[int.Parse(item.index.Last().ToString()) - 1] = item;
+                }
             }
         }
         private void button3_Click(object sender, EventArgs e)
         {
-            GetAddrData.Clear();
-            GetAddrTarget.Clear();
-            foreach (var item in preset)
+            if(SelectPreset.SelectedItem == null)
             {
-                if (item.index.Contains("Data")){
-                    Debug.WriteLine($" The data : { item.index.Last().ToString()}");
-                    Debug.WriteLine($"Total Addr Count : {GetAddrData.Count}");
-
-                    if (int.Parse(item.index.Last().ToString()) - 1 > GetAddrData.Count)
-                    {
-                        for(int i = int.Parse(item.index.Last().ToString()) - GetAddrData.Count;i < int.Parse(item.index.Last().ToString()) - 1; i++)
-                        {
-                            Debug.WriteLine($"number of padding to add {int.Parse(item.index.Last().ToString()) - GetAddrData.Count} from {int.Parse(item.index.Last().ToString())}" );
-                            Debug.WriteLine("add padding");
-                            GetAddrData.Add(("0", "0", 0, 0));
-                        }
-                        GetAddrData.Insert(int.Parse(item.index.Last().ToString()) - 1, item);
-                    }
-                    else
-                    {
-                        GetAddrData.Insert(int.Parse(item.index.Last().ToString()) - 1, item);
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine($" The Target : {item.index.Last().ToString()}");
-                    Debug.WriteLine($"Total Addr Count : {GetAddrTarget.Count}");
-                    if (int.Parse(item.index.Last().ToString()) - 1 > GetAddrTarget.Count)
-                    {
-                        Debug.WriteLine($"Your I {int.Parse(item.index.Last().ToString()) - GetAddrTarget.Count}");
-                        Debug.WriteLine($"Does your I is lesser than {int.Parse(item.index.Last().ToString()) - 1}");
-                        if (int.Parse(item.index.Last().ToString()) - GetAddrTarget.Count < int.Parse(item.index.Last().ToString()) - 1)
-                            Debug.WriteLine("Loop WORKING!!!!");
-                        for (int i = int.Parse(item.index.Last().ToString()) - GetAddrTarget.Count; i < int.Parse(item.index.Last().ToString()) - 1; i++)
-                        {
-                            GetAddrTarget.Add(("0", "0", 0, 0));
-                        }
-                        GetAddrTarget.Insert(int.Parse(item.index.Last().ToString()) - 1, item);
-                    }
-                    else
-                    {
-                        GetAddrTarget.Insert(int.Parse(item.index.Last().ToString()) - 1, item);
-                    }
-                }
-                
+                MessageBox.Show("No File to be deleted!!");
             }
-            switch (GetAddrTarget.Count.CompareTo(GetAddrData.Count))
+            else
             {
-                case 1:
-                    for (int i = 1; i <= GetAddrTarget.Count - GetAddrData.Count; i++)
-                    { GetAddrTarget.Add(("0", "0", 0, 0)); }
+                DialogResult deleteconfirmation = MessageBox.Show($"Are you sure you want to delete {SelectPreset.SelectedItem}",
+                    "Unsaved Change",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+                switch (deleteconfirmation)
+                {
+                    case DialogResult.Yes:
+                        File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset", SelectPreset.SelectedItem.ToString()));
                         break;
-                case -1:
-                    for (int i = 1; i <= GetAddrData.Count - GetAddrTarget.Count; i++)
-                    { GetAddrData.Add(("0", "0", 0, 0)); }
-                    break;
+                    case DialogResult.No:
+                        return;
+                }
             }
 
         }
@@ -599,11 +585,6 @@ namespace ExcelInteropGUI
             ToSheet = null;
             PasteBook = null;
             TargetFileClicked = false;
-        }
-        private void LoadPreset()
-        {
-            string json = File.ReadAllText("Preset.json");
-            preset = JsonConvert.DeserializeObject<List<(string index, string setting,  int PresetRow, int PresetCol)>>(json);
         }
         private void SafeInvoke(System.Windows.Forms.Control control, Action uiUpdate)
         {
