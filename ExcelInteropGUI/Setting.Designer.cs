@@ -37,6 +37,8 @@
             this.ToLabel = new System.Windows.Forms.Label();
             this.FromName = new System.Windows.Forms.Label();
             this.ToName = new System.Windows.Forms.Label();
+            this.scrollPanel = new System.Windows.Forms.Panel();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // Save_Preset
@@ -97,7 +99,7 @@
             // ToLabel
             // 
             this.ToLabel.AutoSize = true;
-            this.ToLabel.Location = new System.Drawing.Point(478, 25);
+            this.ToLabel.Location = new System.Drawing.Point(556, 25);
             this.ToLabel.Name = "ToLabel";
             this.ToLabel.Size = new System.Drawing.Size(24, 16);
             this.ToLabel.TabIndex = 7;
@@ -108,24 +110,35 @@
             this.FromName.AutoSize = true;
             this.FromName.Location = new System.Drawing.Point(208, 25);
             this.FromName.Name = "FromName";
-            this.FromName.Size = new System.Drawing.Size(94, 20);
+            this.FromName.Size = new System.Drawing.Size(75, 16);
             this.FromName.TabIndex = 8;
             this.FromName.Text = "FromName";
             // 
             // ToName
             // 
             this.ToName.AutoSize = true;
-            this.ToName.Location = new System.Drawing.Point(508, 25);
+            this.ToName.Location = new System.Drawing.Point(586, 25);
             this.ToName.Name = "ToName";
-            this.ToName.Size = new System.Drawing.Size(76, 20);
+            this.ToName.Size = new System.Drawing.Size(61, 16);
             this.ToName.TabIndex = 9;
             this.ToName.Text = "ToName";
+            // 
+            // scrollPanel
+            // 
+            this.scrollPanel.AutoScroll = true;
+            this.scrollPanel.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.scrollPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.scrollPanel.Location = new System.Drawing.Point(95, 72);
+            this.scrollPanel.Name = "scrollPanel";
+            this.scrollPanel.Size = new System.Drawing.Size(693, 308);
+            this.scrollPanel.TabIndex = 10;
             // 
             // Setting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(802, 455);
+            this.ClientSize = new System.Drawing.Size(878, 504);
+            this.Controls.Add(this.scrollPanel);
             this.Controls.Add(this.ToName);
             this.Controls.Add(this.FromName);
             this.Controls.Add(this.ToLabel);
@@ -159,5 +172,7 @@
         private System.Windows.Forms.Label ToLabel;
         private System.Windows.Forms.Label FromName;
         private System.Windows.Forms.Label ToName;
+        private System.Windows.Forms.Panel scrollPanel;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }

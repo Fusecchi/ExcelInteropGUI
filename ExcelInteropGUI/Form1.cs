@@ -148,7 +148,6 @@ namespace ExcelInteropGUI
         private void TargetSheet_SelectedIndexChanged(object sender, EventArgs e)
         {
             OnFunctionStart?.Invoke("Resetting Table");
-            DataTable.Reset(); // Ensure this is efficient
             selectedSheet = TargetSheet.SelectedIndex;
             ToSheet = PasteBook.Worksheet(selectedSheet + 1);
             To = ToSheet;
