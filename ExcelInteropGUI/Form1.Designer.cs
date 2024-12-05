@@ -1,6 +1,6 @@
 ﻿namespace ExcelInteropGUI
 {
-    partial class Form1
+    partial class Menu
     {
         /// <summary>
         /// Required designer variable.
@@ -41,7 +41,7 @@
             this.ResetButton = new System.Windows.Forms.Button();
             this.PresetLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.MakePreset = new System.Windows.Forms.Button();
             this.FolderBtn = new System.Windows.Forms.Button();
             this.RefreshPreset = new System.Windows.Forms.Button();
             this.DeleteBtn = new System.Windows.Forms.Button();
@@ -172,15 +172,15 @@
             this.label2.TabIndex = 14;
             this.label2.Text = "label2";
             // 
-            // button1
+            // MakePreset
             // 
-            this.button1.Location = new System.Drawing.Point(42, 203);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(78, 29);
-            this.button1.TabIndex = 16;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.MakePreset.Location = new System.Drawing.Point(38, 198);
+            this.MakePreset.Name = "MakePreset";
+            this.MakePreset.Size = new System.Drawing.Size(65, 45);
+            this.MakePreset.TabIndex = 16;
+            this.MakePreset.Text = "Make Preset";
+            this.MakePreset.UseVisualStyleBackColor = true;
+            this.MakePreset.Click += new System.EventHandler(this.makePreset_Click);
             // 
             // FolderBtn
             // 
@@ -195,9 +195,9 @@
             // 
             // RefreshPreset
             // 
-            this.RefreshPreset.Location = new System.Drawing.Point(383, 153);
+            this.RefreshPreset.Location = new System.Drawing.Point(155, 206);
             this.RefreshPreset.Name = "RefreshPreset";
-            this.RefreshPreset.Size = new System.Drawing.Size(77, 24);
+            this.RefreshPreset.Size = new System.Drawing.Size(70, 29);
             this.RefreshPreset.TabIndex = 17;
             this.RefreshPreset.Text = "Refresh";
             this.RefreshPreset.UseVisualStyleBackColor = true;
@@ -205,13 +205,13 @@
             // 
             // DeleteBtn
             // 
-            this.DeleteBtn.Location = new System.Drawing.Point(520, 152);
+            this.DeleteBtn.Location = new System.Drawing.Point(281, 206);
             this.DeleteBtn.Name = "DeleteBtn";
-            this.DeleteBtn.Size = new System.Drawing.Size(77, 25);
+            this.DeleteBtn.Size = new System.Drawing.Size(70, 29);
             this.DeleteBtn.TabIndex = 18;
             this.DeleteBtn.Text = "Delete";
             this.DeleteBtn.UseVisualStyleBackColor = true;
-            this.DeleteBtn.Click += new System.EventHandler(this.button3_Click);
+            this.DeleteBtn.Click += new System.EventHandler(this.Delete_Click);
             // 
             // SelectPreset
             // 
@@ -223,7 +223,7 @@
             this.SelectPreset.TabIndex = 19;
             this.SelectPreset.SelectedIndexChanged += new System.EventHandler(this.SelectPreset_SelectedIndexChanged);
             // 
-            // Form1
+            // Menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -231,7 +231,7 @@
             this.Controls.Add(this.SelectPreset);
             this.Controls.Add(this.DeleteBtn);
             this.Controls.Add(this.RefreshPreset);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.MakePreset);
             this.Controls.Add(this.FolderBtn);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.PresetLabel);
@@ -246,8 +246,8 @@
             this.Controls.Add(this.FileType);
             this.Controls.Add(this.DataSelected);
             this.Controls.Add(this.SelectData);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "Menu";
+            this.Text = "Menu";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
@@ -271,7 +271,7 @@
         private System.Windows.Forms.Label PresetLabel;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button FolderBtn;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button MakePreset;
         private System.Windows.Forms.Button RefreshPreset;
         private System.Windows.Forms.Button DeleteBtn;
         private System.Windows.Forms.ComboBox SelectPreset;

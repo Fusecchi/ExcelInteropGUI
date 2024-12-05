@@ -18,7 +18,7 @@ namespace ExcelInteropGUI
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             ErrorHandling.Initialize();
-            Application.Run(new Form1());
+            Application.Run(new Menu());
         }
     }
 }

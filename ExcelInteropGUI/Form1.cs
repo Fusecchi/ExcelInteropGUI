@@ -25,7 +25,7 @@ using Path = System.IO.Path;
 
 namespace ExcelInteropGUI
 {
-    public partial class Form1 : Form
+    public partial class Menu : Form
     {
         //Declare FIle Dialog
         OpenFileDialog ofd = new OpenFileDialog();
@@ -47,13 +47,14 @@ namespace ExcelInteropGUI
         string Tp;
         string[] PresetAddr;
         bool SourceFileClicked, TargetFileClicked;
-        List<(string index, string setting, int PresetRow, int PresetCol)> preset;
+        List<(string index, string setting, int PresetRow, int PresetCol)> preset = new List<(string index, string setting, int PresetRow, int PresetCol)>();
+        List<(int index, string type, string rmvchr)> dataHandle = new List<(int index, string type, string rmvchr)>();
         List<(string index, string setting, int PresetRow, int PresetCol)> GetAddrData = new List<(string index, string setting, int PresetRow, int PresetCol)>();
         List<(string index, string setting, int PresetRow, int PresetCol)> GetAddrTarget = new List<(string index, string setting, int PresetRow, int PresetCol)>();
         List<string> PresetPath = new List<string>();
         public System.Data.DataTable DataTable { get; set; } = new System.Data.DataTable();
         public System.Data.DataTable TargetTable { get; set; } = new System.Data.DataTable();
-        public Form1()
+        public Menu()
         {
             InitializeComponent();
             
@@ -383,7 +384,7 @@ namespace ExcelInteropGUI
         {
             Process.Start(Tp);
         }
-        private void button1_Click(object sender, EventArgs e)
+        private void makePreset_Click(object sender, EventArgs e)
         {
 
             OnFunctionStart?.Invoke("Making Table");
@@ -400,23 +401,53 @@ namespace ExcelInteropGUI
         private void TransferData()
         {
             var LastRowTo = From.LastRowUsed().RowNumber();
-            foreach(var item in GetAddrData)
-                for (var row = 0; row < LastRowTo - 1; row++)
+            for (var row = 0; row < LastRowTo - 1; row++)
+            {
+                for(int i = 0; i<GetAddrTarget.Count(); i++)
                 {
-                    for(int i = 0; i<GetAddrTarget.Count(); i++)
+                    if (
+                        GetAddrTarget[i].PresetRow.Equals(0) || 
+                        GetAddrTarget[i].PresetCol.Equals(0) || 
+                        GetAddrData[i].PresetRow.Equals(0) || 
+                        GetAddrData[i].PresetCol.Equals(0))
                     {
-                        if (
-                            GetAddrTarget[i].PresetRow.Equals(0) || 
-                            GetAddrTarget[i].PresetCol.Equals(0) || 
-                            GetAddrData[i].PresetRow.Equals(0) || 
-                            GetAddrData[i].PresetCol.Equals(0))
-                        {
-                            continue;
-                        }
-                        To.Cell(GetAddrTarget[i].PresetRow + row, GetAddrTarget[i].PresetCol).Value =
-                            From.Cell(GetAddrData[i].PresetRow+row, GetAddrData[i].PresetCol).Value;
+                        continue;
                     }
+                    var valuetoParse = From.Cell(GetAddrData[i].PresetRow + row, GetAddrData[i].PresetCol).Value;
+                    if (!string.IsNullOrEmpty(dataHandle[i].rmvchr))
+                    {
+                        foreach (char c in dataHandle[i].rmvchr)
+                        {
+                            valuetoParse = valuetoParse.ToString().Replace(c.ToString(), "");
+                        }
+                    }
+                    switch (dataHandle[i].type)
+                    {
+                        case "Number":
+                            if (int.TryParse(valuetoParse.ToString(), out var result))
+                            {
+                                valuetoParse = result;
+                                break;
+                            }
+                            else if (float.TryParse(valuetoParse.ToString(), out var resultFloat))
+                            {
+                                valuetoParse = resultFloat;
+                            }
+                            else {
+                                continue; 
+                            }
+                            break;
+                           
+                        case "Text":
+                            valuetoParse = valuetoParse.ToString();
+                            break;
+
+                    }
+                    To.Cell(GetAddrTarget[i].PresetRow + row, GetAddrTarget[i].PresetCol).Value = valuetoParse;
+                        
+                    
                 }
+            }
             OnFunctionStart?.Invoke("Saving Book");
             PasteBook.Save();
         }
@@ -433,14 +464,29 @@ namespace ExcelInteropGUI
         private void SelectPreset_SelectedIndexChanged(object sender, EventArgs e)
         {
             string json = File.ReadAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset",SelectPreset.SelectedItem.ToString())}");
-            preset = JsonConvert.DeserializeObject<List<(string index, string setting, int PresetRow, int PresetCol)>>(json);
+            dynamic data = JsonConvert.DeserializeObject<dynamic>(json);
             GetAddrData.Clear();
             GetAddrTarget.Clear();
+            dataHandle.Clear();
+            preset.Clear();
+            if(data.Preset != null)
+            {
+                foreach (var item in data.Preset)
+                {
+                    string index = item.Item1;
+                    string setting = item.Item2;
+                    int presetRow = (int)item.Item3; 
+                    int presetCol = (int)item.Item4; 
+                    preset.Add((index, setting, presetRow, presetCol));
+                }
+            }
+
             int Highest = preset.Select(t => int.Parse(t.index.Last().ToString())).Max();
             for (int i = 0; i < Highest; i++)
             {
                 GetAddrData.Add(("0", "0", 0, 0));
                 GetAddrTarget.Add(("0", "0", 0, 0));
+                dataHandle.Add((0,"0", "0"));
             }
             foreach (var item in preset)
             {
@@ -453,8 +499,18 @@ namespace ExcelInteropGUI
                     GetAddrTarget[int.Parse(item.index.Last().ToString()) - 1] = item;
                 }
             }
+            if (data.datahandle != null)
+            {
+                foreach (var item in data.datahandle)
+                {
+                    string item1 = item.Item1;
+                    string item2 = item.Item2;
+                    string item3 = item.Item3;
+                    dataHandle[int.Parse(item1.Last().ToString())-1] = ((int.Parse(item1.Last().ToString()), item2, item3));
+                }
+            }
         }
-        private void button3_Click(object sender, EventArgs e)
+        private void Delete_Click(object sender, EventArgs e)
         {
             if(SelectPreset.SelectedItem == null)
             {
@@ -541,7 +597,6 @@ namespace ExcelInteropGUI
                     for (int j = 1; j <= lastcol; j++) // Use 1-based index for columns
                     {
                         var cellValue = To.Cell(i,j).Value; // Store cell value in a variable
-                        Debug.WriteLine($"The Value in table Rows {i} Col {j} is {cellValue}");
                         datarow[j - 1] = cellValue; // Adjust for 0-based index in DataRow
                     }
                     TargetTable.Rows.Add(datarow);

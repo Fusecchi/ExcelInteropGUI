@@ -13,9 +13,9 @@ namespace ExcelInteropGUI
     public partial class LoadingBar : Form
     {
         public Action Worker { get; set; }
-        private Form1 _form1;
+        private Menu _form1;
 
-        public LoadingBar(Action worker, Form1 form1)
+        public LoadingBar(Action worker, Menu form1)
         {
             InitializeComponent();
             if (worker == null)

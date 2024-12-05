@@ -95,14 +95,14 @@ namespace ExcelInteropGUI
             RadioButton RbStr = new RadioButton
             {
                 Location = new System.Drawing.Point(RbInt.Location.X + RbInt.Width, RbInt.Location.Y),
-                Text = "Text",
+                Text = "None",
                 Font = new Font("Microsoft Sans Serif", 8),
                 AutoSize = true,
             };
             RadioButton RbFloat = new RadioButton
             {
                 Location = new System.Drawing.Point(RbStr.Location.X + RbStr.Width, RbInt.Location.Y),
-                Text = "Decimal",
+                Text = "Text",
                 Font = new Font("Microsoft Sans Serif", 8),
                 AutoSize = true,
             };
@@ -252,7 +252,7 @@ namespace ExcelInteropGUI
         {
             Size Textsize = new Size(TextRenderer.MeasureText(btn.Text, btn.Font).Width+5, TextRenderer.MeasureText(btn.Text, btn.Font).Height+5);
             btn.Size = Textsize;
-            btn.Location = new System.Drawing.Point(anchorbtn.Location.X + anchorbtn.Width +(btn.Width/2), anchorbtn.Location.Y);
+            btn.Location = new System.Drawing.Point(anchorbtn.Location.X + anchorbtn.Width +(btn.Width/2)+5, anchorbtn.Location.Y);
         }
     }
 }
