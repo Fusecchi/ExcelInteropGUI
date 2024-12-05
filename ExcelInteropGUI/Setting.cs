@@ -56,62 +56,57 @@ namespace ExcelInteropGUI
             //Button Property
             int buttonHeight = 30;
             int buttonWidth = 100;
-            int buttonPosX = 15;
             //Lbutton Property
             int LbuttonHeight = 30;
             int LbuttonWidth = 100;
-
             int GapX = 15;
-            int ypos = (buttonHeight + 50) * (BtnIterration - 1) + scrollPanel.AutoScrollPosition.Y;
+            int ypos = (80 + 50) * (BtnIterration - 1) + scrollPanel.AutoScrollPosition.Y;
             scrollPanel.AutoScrollMinSize = new Size(Width, ypos);
             //Initiate Button
+            GroupBox groupBox = new GroupBox
+            {
+                Location = new System.Drawing.Point(10, 10),
+            };
             Button button = new Button {
                 Text = Text = $"Data {BtnIterration}",
                 Size = new Size(buttonWidth, buttonHeight),
-                Location = new System.Drawing.Point(buttonPosX, ypos)
+                Location = new System.Drawing.Point(0, 0)
             };
             //Initiate Label
             Label label = new Label
             {
-                Location = new System.Drawing.Point(buttonPosX + button.Width + GapX, ypos),
+                Location = new System.Drawing.Point(button.Bounds.Right, ypos),
                 Size = new Size(50, 30)
-            };
-            GroupBox groupBox = new GroupBox
-            {
-                Location = new System.Drawing.Point(label.Location.X, label.Location.Y + label.Height),
-                AutoSize =true
             };
 
             //Initiate Radio Button
             RadioButton RbInt = new RadioButton
             {
-                Location = new System.Drawing.Point(0,0),
+                Location = new System.Drawing.Point(label.Location.X,label.Bounds.Bottom),
                 Font = new Font("Microsoft Sans Serif",8),
                 Text = "Number",
                 AutoSize = true,
             };
-            Size Textsize = new Size(TextRenderer.MeasureText(RbInt.Text, RbInt.Font).Width, TextRenderer.MeasureText(RbInt.Text, RbInt.Font).Height + 5);
-            RbInt.Size = Textsize;
             RadioButton RbStr = new RadioButton
             {
-                Location = new System.Drawing.Point(RbInt.Location.X + RbInt.Width, RbInt.Location.Y),
+                Location = new System.Drawing.Point(RbInt.Bounds.Right, RbInt.Location.Y),
                 Text = "None",
                 Font = new Font("Microsoft Sans Serif", 8),
                 AutoSize = true,
             };
             RadioButton RbFloat = new RadioButton
             {
-                Location = new System.Drawing.Point(RbStr.Location.X + RbStr.Width, RbInt.Location.Y),
+                Location = new System.Drawing.Point(RbStr.Bounds.Right, RbInt.Location.Y),
                 Text = "Text",
                 Font = new Font("Microsoft Sans Serif", 8),
                 AutoSize = true,
             };
-            groupBox.Size = new Size(RbFloat.Bounds.Right - label.Bounds.Left, RbInt.Size.Height);
-            TextMeasure(RbFloat, RbInt);
-            TextMeasure(RbStr, RbFloat);
+            TextMeasure(RbInt, button, label.Bounds.Bottom);
+            TextMeasure(RbFloat, RbInt, label.Bounds.Bottom);
+            TextMeasure(RbStr, RbFloat, label.Bounds.Bottom);
             TextBox chartoRemove = new TextBox {
-                Size = new Size(groupBox.Size.Width, label.Size.Height),
-                Location = new System.Drawing.Point(label.Location.X + label.Width, label.Location.Y),
+                Size = new Size(RbStr.Bounds.Right-RbInt.Bounds.Left, label.Size.Height),
+                Location = new System.Drawing.Point(label.Bounds.Right, label.Location.Y),
                 Visible = true
             };
 
@@ -119,23 +114,36 @@ namespace ExcelInteropGUI
             {
                 Text = $"Target File {BtnIterration}",
                 Size = new Size(LbuttonWidth, LbuttonHeight),
-                Location = new System.Drawing.Point(chartoRemove.Location.X+chartoRemove.Width + GapX, ypos)
+                Location = new System.Drawing.Point(chartoRemove.Bounds.Right + GapX, ypos)
             };
             Label Llabel = new Label
             {
                 Location = new System.Drawing.Point(Lbutton.Width + Lbutton.Location.X + GapX, ypos),
                 Size = new Size(50, 30)
             };
-            
-            scrollPanel.Controls.Add(button);
-            scrollPanel.Controls.Add(label);
-            scrollPanel.Controls.Add(Lbutton);
-            scrollPanel.Controls.Add(Llabel);
+            Button RmBtn = new Button
+            {
+                Size = new Size(buttonWidth, buttonHeight),
+                Location = new System.Drawing.Point(((RbStr.Bounds.Right - RbInt.Bounds.Left)/2)+RbInt.Bounds.Left  , RbInt.Bounds.Bottom+GapX),
+                Text = "Delete"
+            };
+  
+            groupBox.Controls.Add(button);
+            groupBox.Controls.Add(label);
+            groupBox.Controls.Add(Lbutton);
+            groupBox.Controls.Add(Llabel);
             groupBox.Controls.Add(RbInt);
             groupBox.Controls.Add(RbStr);
             groupBox.Controls.Add(RbFloat);
+            groupBox.Controls.Add(chartoRemove);
+            groupBox.Controls.Add(RmBtn);
+            groupBox.Size = new Size(Llabel.Bounds.Right, RmBtn.Bounds.Bottom);
             scrollPanel.Controls.Add(groupBox);
-            scrollPanel.Controls.Add(chartoRemove);
+
+            RmBtn.Click += (s, args) =>
+            {
+                scrollPanel.Controls.Remove(groupBox);
+            };
 
             button.Click += (s, args) =>
             {
@@ -248,11 +256,13 @@ namespace ExcelInteropGUI
         {
 
         }
-        private void TextMeasure(Control btn, Control anchorbtn)
+        private void TextMeasure(Control btn, Control anchorX, int anchorY)
         {
-            Size Textsize = new Size(TextRenderer.MeasureText(btn.Text, btn.Font).Width+5, TextRenderer.MeasureText(btn.Text, btn.Font).Height+5);
+            Size Textsize = new Size(TextRenderer.MeasureText(btn.Text, btn.Font).Width, TextRenderer.MeasureText(btn.Text, btn.Font).Height);
             btn.Size = Textsize;
-            btn.Location = new System.Drawing.Point(anchorbtn.Location.X + anchorbtn.Width +(btn.Width/2)+5, anchorbtn.Location.Y);
+            btn.Location = new System.Drawing.Point(anchorX.Bounds.Right+18, anchorY);
+            Debug.WriteLine($"Current Size = {btn.Size}, current pos = {btn.Location}");
         }
     }
+
 }

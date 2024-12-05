@@ -433,9 +433,8 @@ namespace ExcelInteropGUI
                             {
                                 valuetoParse = resultFloat;
                             }
-                            else {
-                                continue; 
-                            }
+                            else { break; }
+
                             break;
                            
                         case "Text":
@@ -591,7 +590,7 @@ namespace ExcelInteropGUI
                     TargetTable.Columns.Add();
                 }
 
-                for (int i = 1; i <= lastrow; i++) // Use 1-based index for rows
+                for (int i = 1; i <= 100; i++) // Use 1-based index for rows
                 {
                     DataRow datarow = TargetTable.NewRow();
                     for (int j = 1; j <= lastcol; j++) // Use 1-based index for columns
