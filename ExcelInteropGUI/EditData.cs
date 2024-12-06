@@ -22,6 +22,7 @@ namespace ExcelInteropGUI
         public EditWin()
         {
             InitializeComponent();
+            this.MaximizeBox = false;
         }
 
         private void EditTable_CellContentClick(object sender, DataGridViewCellEventArgs e)

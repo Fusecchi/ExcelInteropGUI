@@ -22,6 +22,7 @@ namespace ExcelInteropGUI
                 throw new ArgumentNullException();
             Worker = worker;
             _form1 = form1;
+            this.MaximizeBox = false;
         }
 
         protected override void OnLoad(EventArgs e)

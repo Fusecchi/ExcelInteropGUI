@@ -40,12 +40,17 @@
             this.TargetName = new System.Windows.Forms.TextBox();
             this.ResetButton = new System.Windows.Forms.Button();
             this.PresetLabel = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.MakePreset = new System.Windows.Forms.Button();
             this.FolderBtn = new System.Windows.Forms.Button();
-            this.RefreshPreset = new System.Windows.Forms.Button();
+            this.EditPreset = new System.Windows.Forms.Button();
             this.DeleteBtn = new System.Windows.Forms.Button();
             this.SelectPreset = new System.Windows.Forms.ComboBox();
+            this.Add_NewSheet = new System.Windows.Forms.Button();
+            this.New_Sheet = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.NewBookSave = new System.Windows.Forms.TextBox();
+            this.CSVNew_Save = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // SelectData
@@ -134,6 +139,7 @@
             this.TargetSheet.Size = new System.Drawing.Size(196, 24);
             this.TargetSheet.TabIndex = 10;
             this.TargetSheet.SelectedIndexChanged += new System.EventHandler(this.TargetSheet_SelectedIndexChanged);
+            this.TargetSheet.Click += new System.EventHandler(this.TargetSheet_Click);
             // 
             // TargetName
             // 
@@ -157,24 +163,15 @@
             // PresetLabel
             // 
             this.PresetLabel.AutoSize = true;
-            this.PresetLabel.Location = new System.Drawing.Point(48, 156);
+            this.PresetLabel.Location = new System.Drawing.Point(48, 207);
             this.PresetLabel.Name = "PresetLabel";
             this.PresetLabel.Size = new System.Drawing.Size(46, 16);
             this.PresetLabel.TabIndex = 13;
             this.PresetLabel.Text = "Preset";
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(484, 253);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(44, 16);
-            this.label2.TabIndex = 14;
-            this.label2.Text = "label2";
-            // 
             // MakePreset
             // 
-            this.MakePreset.Location = new System.Drawing.Point(38, 198);
+            this.MakePreset.Location = new System.Drawing.Point(38, 249);
             this.MakePreset.Name = "MakePreset";
             this.MakePreset.Size = new System.Drawing.Size(65, 45);
             this.MakePreset.TabIndex = 16;
@@ -193,23 +190,23 @@
             this.FolderBtn.UseVisualStyleBackColor = false;
             this.FolderBtn.Click += new System.EventHandler(this.FolderBtn_Click);
             // 
-            // RefreshPreset
+            // EditPreset
             // 
-            this.RefreshPreset.Location = new System.Drawing.Point(155, 206);
-            this.RefreshPreset.Name = "RefreshPreset";
-            this.RefreshPreset.Size = new System.Drawing.Size(70, 29);
-            this.RefreshPreset.TabIndex = 17;
-            this.RefreshPreset.Text = "Refresh";
-            this.RefreshPreset.UseVisualStyleBackColor = true;
-            this.RefreshPreset.Click += new System.EventHandler(this.Refreshbtn_Click);
+            this.EditPreset.Location = new System.Drawing.Point(155, 249);
+            this.EditPreset.Name = "EditPreset";
+            this.EditPreset.Size = new System.Drawing.Size(70, 45);
+            this.EditPreset.TabIndex = 17;
+            this.EditPreset.Text = "Edit Preset";
+            this.EditPreset.UseVisualStyleBackColor = true;
+            this.EditPreset.Click += new System.EventHandler(this.EditPreset_Click);
             // 
             // DeleteBtn
             // 
-            this.DeleteBtn.Location = new System.Drawing.Point(281, 206);
+            this.DeleteBtn.Location = new System.Drawing.Point(281, 249);
             this.DeleteBtn.Name = "DeleteBtn";
-            this.DeleteBtn.Size = new System.Drawing.Size(70, 29);
+            this.DeleteBtn.Size = new System.Drawing.Size(70, 45);
             this.DeleteBtn.TabIndex = 18;
-            this.DeleteBtn.Text = "Delete";
+            this.DeleteBtn.Text = "Delete Preset";
             this.DeleteBtn.UseVisualStyleBackColor = true;
             this.DeleteBtn.Click += new System.EventHandler(this.Delete_Click);
             // 
@@ -217,23 +214,80 @@
             // 
             this.SelectPreset.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.SelectPreset.FormattingEnabled = true;
-            this.SelectPreset.Location = new System.Drawing.Point(155, 153);
+            this.SelectPreset.Location = new System.Drawing.Point(155, 204);
             this.SelectPreset.Name = "SelectPreset";
             this.SelectPreset.Size = new System.Drawing.Size(196, 24);
             this.SelectPreset.TabIndex = 19;
             this.SelectPreset.SelectedIndexChanged += new System.EventHandler(this.SelectPreset_SelectedIndexChanged);
+            this.SelectPreset.Click += new System.EventHandler(this.SelectPreset_Click);
+            this.SelectPreset.Leave += new System.EventHandler(this.SelectPreset_Leave);
+            this.SelectPreset.Validating += new System.ComponentModel.CancelEventHandler(this.SelectPreset_Validating);
+            // 
+            // Add_NewSheet
+            // 
+            this.Add_NewSheet.Location = new System.Drawing.Point(652, 141);
+            this.Add_NewSheet.Name = "Add_NewSheet";
+            this.Add_NewSheet.Size = new System.Drawing.Size(64, 46);
+            this.Add_NewSheet.TabIndex = 20;
+            this.Add_NewSheet.Text = "Add Sheet";
+            this.Add_NewSheet.UseVisualStyleBackColor = true;
+            this.Add_NewSheet.Click += new System.EventHandler(this.Add_NewSheet_Click);
+            // 
+            // New_Sheet
+            // 
+            this.New_Sheet.Location = new System.Drawing.Point(411, 153);
+            this.New_Sheet.Name = "New_Sheet";
+            this.New_Sheet.Size = new System.Drawing.Size(224, 22);
+            this.New_Sheet.TabIndex = 21;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(408, 212);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(66, 16);
+            this.label1.TabIndex = 22;
+            this.label1.Text = "Saved As";
+            // 
+            // NewBookSave
+            // 
+            this.NewBookSave.Location = new System.Drawing.Point(507, 206);
+            this.NewBookSave.Name = "NewBookSave";
+            this.NewBookSave.Size = new System.Drawing.Size(209, 22);
+            this.NewBookSave.TabIndex = 23;
+            // 
+            // CSVNew_Save
+            // 
+            this.CSVNew_Save.Location = new System.Drawing.Point(155, 153);
+            this.CSVNew_Save.Name = "CSVNew_Save";
+            this.CSVNew_Save.Size = new System.Drawing.Size(196, 22);
+            this.CSVNew_Save.TabIndex = 25;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(43, 159);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(66, 16);
+            this.label2.TabIndex = 24;
+            this.label2.Text = "Saved As";
             // 
             // Menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(786, 400);
+            this.Controls.Add(this.CSVNew_Save);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.NewBookSave);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.New_Sheet);
+            this.Controls.Add(this.Add_NewSheet);
             this.Controls.Add(this.SelectPreset);
             this.Controls.Add(this.DeleteBtn);
-            this.Controls.Add(this.RefreshPreset);
+            this.Controls.Add(this.EditPreset);
             this.Controls.Add(this.MakePreset);
             this.Controls.Add(this.FolderBtn);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.PresetLabel);
             this.Controls.Add(this.ResetButton);
             this.Controls.Add(this.TargetName);
@@ -269,12 +323,17 @@
         private System.Windows.Forms.TextBox TargetName;
         private System.Windows.Forms.Button ResetButton;
         private System.Windows.Forms.Label PresetLabel;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button FolderBtn;
         private System.Windows.Forms.Button MakePreset;
-        private System.Windows.Forms.Button RefreshPreset;
+        private System.Windows.Forms.Button EditPreset;
         private System.Windows.Forms.Button DeleteBtn;
         private System.Windows.Forms.ComboBox SelectPreset;
+        private System.Windows.Forms.Button Add_NewSheet;
+        private System.Windows.Forms.TextBox New_Sheet;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox NewBookSave;
+        private System.Windows.Forms.TextBox CSVNew_Save;
+        private System.Windows.Forms.Label label2;
     }
 }
 

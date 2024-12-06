@@ -24,12 +24,19 @@ namespace ExcelInteropGUI
         public System.Data.DataTable TargetTable { get; set; } = new System.Data.DataTable();
         public List<(string DataIndex, string setting, int PresetRow, int PresetCol)> Preset { get; set; } = new List<(string DataIndex, string setting, int PresetRow, int PresetCol)>();
         public List<(string DataIndex, string handle, string remove)> datahandle { get; set; } = new List<(string DataIndex, string handle, string remove)>();
+        public List<(int DataIndex, string handle, string remove)> datahandletoRtn { get; set; } = new List<(int DataIndex, string handle, string remove)>();
+
+        private List<GroupBox> groupBoxes = new List<GroupBox>();
         private int BtnIterration = 0;
         public string from, to;
-        
-        public Setting()
+
+        public Setting(Menu menu)
         {
             InitializeComponent();
+            menu.editPresetClicked += EditPreset;
+            textBox1.Text = menu.Selected_json;
+            this.FormClosed += (s, args) => menu.editPresetClicked -= EditPreset;
+            this.MaximizeBox = false;
         }
 
 
@@ -48,8 +55,8 @@ namespace ExcelInteropGUI
             }
             File.WriteAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset",textBox1.Text)}.json", json);
             MessageBox.Show($"Saved as {textBox1.Text}.json");
-        }
 
+        }
         private void button3_Click(object sender, EventArgs e)
         {
             BtnIterration++;
@@ -60,7 +67,7 @@ namespace ExcelInteropGUI
             int LbuttonHeight = 30;
             int LbuttonWidth = 100;
             int GapX = 15;
-            int ypos = (80 + 50) * (BtnIterration - 1) + scrollPanel.AutoScrollPosition.Y;
+            int ypos = (100) * (BtnIterration - 1) + scrollPanel.AutoScrollPosition.Y;
             scrollPanel.AutoScrollMinSize = new Size(Width, ypos);
             //Initiate Button
             GroupBox groupBox = new GroupBox
@@ -70,13 +77,14 @@ namespace ExcelInteropGUI
             Button button = new Button {
                 Text = Text = $"Data {BtnIterration}",
                 Size = new Size(buttonWidth, buttonHeight),
-                Location = new System.Drawing.Point(0, 0)
+                Location = new System.Drawing.Point(5, ypos)
             };
             //Initiate Label
             Label label = new Label
             {
                 Location = new System.Drawing.Point(button.Bounds.Right, ypos),
-                Size = new Size(50, 30)
+                Size = new Size(50, 30),
+                Tag = $"Data {BtnIterration}"
             };
 
             //Initiate Radio Button
@@ -118,8 +126,9 @@ namespace ExcelInteropGUI
             };
             Label Llabel = new Label
             {
-                Location = new System.Drawing.Point(Lbutton.Width + Lbutton.Location.X + GapX, ypos),
-                Size = new Size(50, 30)
+                Location = new System.Drawing.Point(Lbutton.Width + Lbutton.Location.X, ypos),
+                Size = new Size(50, 50),
+                Tag = $"Target File {BtnIterration}"
             };
             Button RmBtn = new Button
             {
@@ -139,17 +148,83 @@ namespace ExcelInteropGUI
             groupBox.Controls.Add(RmBtn);
             groupBox.Size = new Size(Llabel.Bounds.Right, RmBtn.Bounds.Bottom);
             scrollPanel.Controls.Add(groupBox);
-
+            groupBoxes.Add(groupBox);
             RmBtn.Click += (s, args) =>
             {
+                BtnIterration--;
                 scrollPanel.Controls.Remove(groupBox);
+                var groupboxind = groupBoxes.IndexOf(groupBox);
+                var index = Preset.FindIndex(k => k.DataIndex == button.Text);
+                var indexT = Preset.FindIndex(j =>  j.DataIndex == Lbutton.Text);
+                if (index != -1 && indexT != -1)
+                {
+                    if (index< indexT)
+                    {
+                        Preset.RemoveAt(indexT);
+                        Preset.RemoveAt(index);
+                    }
+                    if(index> indexT)
+                    {
+                        Preset.RemoveAt(index);
+                        Preset.RemoveAt(indexT);
+                    }
+                }
+                if( index != -1)
+                {
+                    Preset.RemoveAt(index);
+                }
+                if (indexT != -1)
+                {
+                    Preset.RemoveAt(indexT);
+                }
+                var DataHandleIndex = datahandle.FindIndex(l => l.DataIndex == button.Text);
+                if (DataHandleIndex != -1)
+                {
+                    datahandle.RemoveAt(DataHandleIndex);
+                }
+                groupBoxes.Remove(groupBox);
+                for (int i = groupboxind; i<groupBoxes.Count; i++)
+                {
+                    GroupBox gb = groupBoxes[i];
+                    gb.Location = new System.Drawing.Point(gb.Location.X, gb.Location.Y-100);
+                    foreach (Control control in gb.Controls)
+                    {
+                        if(control is Button button1 && button1.Text == $"Data {i+2}"){
+                            button1.Text = $"Data {i+1}";
+                        }
+                        if (control is Button button2 && button2.Text == $"Target File {i + 2}")
+                        {
+                            button2.Text = $"Target File {i+1}";
+                        }
+                    }
+                }
+                for(int j = 0;j<Preset.Count;j++)
+                {
+                    var original_list = Preset[j];
+                    var control = groupboxind + 2;
+                    int lastval = int.Parse(Preset[j].DataIndex.Last().ToString());
+                    if (lastval >= control)
+                    {
+                        string newDataIndex = original_list.DataIndex.Substring(0, original_list.DataIndex.Length - 1) + (lastval - 1).ToString();
+                        Preset[j] = (newDataIndex, original_list.setting, original_list.PresetRow, original_list.PresetCol);
+                    }
+                }
             };
 
             button.Click += (s, args) =>
             {
                 SelectDataForm select = new SelectDataForm();
                 select.DatatoClick = DataTable;
+                List<(int row, int col)> Highlight = new List<(int row, int col)>();
                 select.FormClosed += (c, arg) => this.Show();
+                for(int j = 0;j<Preset.Count;j++)
+                {
+                    if (Preset[j].DataIndex == button.Text)
+                    {
+                        Highlight.Add((Preset[j].PresetRow, Preset[j].PresetCol));
+                        select.Highlight = Highlight;
+                    }
+                }
                 select.selectedData += tuple =>
                 {
                     int index = Preset.FindIndex(k => k.DataIndex == button.Text);
@@ -170,7 +245,16 @@ namespace ExcelInteropGUI
             Lbutton.Click += (s, args) => {
                 SelectDataForm TSelect = new SelectDataForm();
                 TSelect.DatatoClick = TargetTable;
+                List<(int row, int col)> THighlight = new List<(int row, int col)>();
                 TSelect.FormClosed += (D, arg) => this.Show();
+                for (int j = 0; j < Preset.Count; j++)
+                {
+                    if (Preset[j].DataIndex == Lbutton.Text)
+                    {
+                        THighlight.Add((Preset[j].PresetRow, Preset[j].PresetCol));
+                        TSelect.Highlight = THighlight;
+                    }
+                }
                 TSelect.selectedData += tuple =>
                 {
                     int index = Preset.FindIndex(k => k.DataIndex == Lbutton.Text);
@@ -239,19 +323,15 @@ namespace ExcelInteropGUI
 
             };
         }
-
-
         private void CloseBtn_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-
         private void Setting_Load(object sender, EventArgs e)
         {
             FromName.Text = from;
             ToName.Text = to;
         }
-
         private void Setting_FormClosed(object sender, FormClosedEventArgs e)
         {
 
@@ -261,7 +341,56 @@ namespace ExcelInteropGUI
             Size Textsize = new Size(TextRenderer.MeasureText(btn.Text, btn.Font).Width, TextRenderer.MeasureText(btn.Text, btn.Font).Height);
             btn.Size = Textsize;
             btn.Location = new System.Drawing.Point(anchorX.Bounds.Right+18, anchorY);
-            Debug.WriteLine($"Current Size = {btn.Size}, current pos = {btn.Location}");
+        }
+        private void EditPreset()
+        {
+
+            int Highest = Preset.Select(t => int.Parse(t.DataIndex.Last().ToString())).Max();
+            for (int i = 0; i < Highest; i++) {
+                button3_Click(this,EventArgs.Empty);
+            }
+            foreach(var item in Preset)
+            {
+                for (int i = 0; i < groupBoxes.Count; i++) {
+                    GroupBox gb = groupBoxes[i];
+                    foreach (Control control in gb.Controls) { 
+                        if(int.Parse(item.DataIndex.Last().ToString()) == i + 1){
+                            if (control is Label Dlbl && Dlbl.Tag.ToString() == item.DataIndex)
+                            {
+                                Dlbl.Text = "Row : " + item.PresetRow + " \n " +
+                                    "Col : " + item.PresetCol;
+                                Debug.WriteLine("-------");
+                                Debug.WriteLine(Dlbl.Tag);
+                                Debug.WriteLine($"Row : { item.PresetRow}");
+                                Debug.WriteLine($"Col : {item.PresetCol}");
+                            }
+                        }
+
+                        
+                    }
+                }
+            }
+            foreach(var data in datahandletoRtn)
+            {
+                for (int i = 0; i < groupBoxes.Count; i++)
+                {
+                    GroupBox gb = groupBoxes[i];
+                    if (datahandletoRtn[i].DataIndex != i)
+                    {
+                        foreach (Control control in gb.Controls)
+                        {
+                            if (control is RadioButton RB && RB.Text == $"{datahandletoRtn[i].handle}")
+                            {
+                                RB.Checked = true;
+                            }
+                            if (control is TextBox TB )
+                            {
+                                TB.Text = $"{datahandletoRtn[i].remove}"; 
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

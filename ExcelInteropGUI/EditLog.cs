@@ -18,6 +18,7 @@ namespace ExcelInteropGUI
         public EditLog()
         {
             InitializeComponent();
+            this.MaximizeBox = false;
         }
 
         private void EditLog_Load(object sender, EventArgs e)

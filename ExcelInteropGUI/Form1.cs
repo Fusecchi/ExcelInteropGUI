@@ -21,6 +21,8 @@ using System.Threading;
 using Newtonsoft.Json;
 using DocumentFormat.OpenXml.Drawing;
 using Path = System.IO.Path;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using DateTime = System.DateTime;
 
 
 namespace ExcelInteropGUI
@@ -46,6 +48,8 @@ namespace ExcelInteropGUI
         public Action<string> OnFunctionStart;
         string Tp;
         string[] PresetAddr;
+        public string Selected_json;
+        public event Action editPresetClicked;
         bool SourceFileClicked, TargetFileClicked;
         List<(string index, string setting, int PresetRow, int PresetCol)> preset = new List<(string index, string setting, int PresetRow, int PresetCol)>();
         List<(int index, string type, string rmvchr)> dataHandle = new List<(int index, string type, string rmvchr)>();
@@ -57,7 +61,7 @@ namespace ExcelInteropGUI
         public Menu()
         {
             InitializeComponent();
-            
+            this.MaximizeBox = false;
         }
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -81,6 +85,7 @@ namespace ExcelInteropGUI
                         load.ShowDialog(this);
                     }
                 }
+                CSVNew_Save.Text = FileName.Text.Substring(0 , FileName.Text.LastIndexOf(".")) + " - "+DateTime.Now.ToString("yyyy-MM-dd");
             }
             catch (Exception ex)
             {
@@ -152,12 +157,18 @@ namespace ExcelInteropGUI
             selectedSheet = TargetSheet.SelectedIndex;
             ToSheet = PasteBook.Worksheet(selectedSheet + 1);
             To = ToSheet;
+            int dotpos = TargetName.Text.IndexOf('.');
+            NewBookSave.Text = TargetName.Text.Substring(0,dotpos) + " - " + TargetSheet.Text;
         }
         private void SendButton_Click(object sender, EventArgs e)
         {
             try
             {
-                if(DataChecker != TargetType)
+                if (SelectPreset.SelectedItem == null || string.IsNullOrWhiteSpace(SelectPreset.Text))
+                {
+                    Debug.WriteLine("Super");
+                }
+                if (DataChecker != TargetType)
                 {
                     MessageBox.Show("Selected File Isn't Compatible");
                     return;
@@ -170,6 +181,15 @@ namespace ExcelInteropGUI
                 if (Converted)
                 {
                     using (LoadingBar load = new LoadingBar(SaveBacktoCSV, this))
+                    {
+                        load.ShowDialog();
+                    }
+                }
+                else { 
+                using (LoadingBar load = new LoadingBar(()=> { int dotpos = TargetName.Text.LastIndexOf(".");
+                    string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理");
+                    workbook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{CSVNew_Save.Text}.xlsx"));
+                }, this))
                     {
                         load.ShowDialog();
                     }
@@ -386,14 +406,19 @@ namespace ExcelInteropGUI
         }
         private void makePreset_Click(object sender, EventArgs e)
         {
-
+            
             OnFunctionStart?.Invoke("Making Table");
-            Setting setting = new Setting();
+            Setting setting = new Setting(this);
             setting.DataTable = DataTable;
             setting.to = TargetName.Text;
             setting.from = FileName.Text;
             setting.TargetTable = TargetTable;
-            setting.FormClosed += (s, args) => this.Show();
+            setting.Preset = preset;
+            setting.datahandletoRtn = dataHandle;
+            setting.FormClosed += (s, args) => { 
+                this.Show();
+                SelectPreset_SelectedIndexChanged(null, EventArgs.Empty);
+            };
             setting.Show();
             this.Hide();
 
@@ -403,12 +428,12 @@ namespace ExcelInteropGUI
             var LastRowTo = From.LastRowUsed().RowNumber();
             for (var row = 0; row < LastRowTo - 1; row++)
             {
-                for(int i = 0; i<GetAddrTarget.Count(); i++)
+                for (int i = 0; i < GetAddrTarget.Count(); i++)
                 {
                     if (
-                        GetAddrTarget[i].PresetRow.Equals(0) || 
-                        GetAddrTarget[i].PresetCol.Equals(0) || 
-                        GetAddrData[i].PresetRow.Equals(0) || 
+                        GetAddrTarget[i].PresetRow.Equals(0) ||
+                        GetAddrTarget[i].PresetCol.Equals(0) ||
+                        GetAddrData[i].PresetRow.Equals(0) ||
                         GetAddrData[i].PresetCol.Equals(0))
                     {
                         continue;
@@ -436,21 +461,39 @@ namespace ExcelInteropGUI
                             else { break; }
 
                             break;
-                           
+
                         case "Text":
                             valuetoParse = valuetoParse.ToString();
                             break;
 
                     }
                     To.Cell(GetAddrTarget[i].PresetRow + row, GetAddrTarget[i].PresetCol).Value = valuetoParse;
-                        
-                    
                 }
             }
+
             OnFunctionStart?.Invoke("Saving Book");
-            PasteBook.Save();
+            string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理");
+            if (Directory.Exists(FullPath))
+            {
+                PasteBook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
+            }
+            else
+            {
+                Directory.CreateDirectory(FullPath);
+                PasteBook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
+            }
         }
-        private void Refreshbtn_Click(object sender, EventArgs e)
+        public void EditPreset_Click(object sender, EventArgs e)
+        {
+            makePreset_Click(sender, e);
+            if (!string.IsNullOrEmpty(TargetName.Text) && preset != null && !string.IsNullOrEmpty(FileType.Text))
+                editPresetClicked?.Invoke();
+        }
+        private void SelectPreset_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ReadJson();
+        }
+        private void SelectPreset_Click(object sender, EventArgs e)
         {
             SelectPreset.Items.Clear();
             PresetAddr = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset"), "*.json");
@@ -458,56 +501,24 @@ namespace ExcelInteropGUI
             {
                 SelectPreset.Items.Add(Path.GetFileName(p));
             }
-
         }
-        private void SelectPreset_SelectedIndexChanged(object sender, EventArgs e)
+        private void Add_NewSheet_Click(object sender, EventArgs e)
         {
-            string json = File.ReadAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset",SelectPreset.SelectedItem.ToString())}");
-            dynamic data = JsonConvert.DeserializeObject<dynamic>(json);
-            GetAddrData.Clear();
-            GetAddrTarget.Clear();
-            dataHandle.Clear();
-            preset.Clear();
-            if(data.Preset != null)
+            if (PasteBook != null)
+                PasteBook.AddWorksheet(New_Sheet.Text);
+            else
+                MessageBox.Show("No File Selected");
+        }
+        private void TargetSheet_Click(object sender, EventArgs e)
+        {
+            if (PasteBook != null)
             {
-                foreach (var item in data.Preset)
-                {
-                    string index = item.Item1;
-                    string setting = item.Item2;
-                    int presetRow = (int)item.Item3; 
-                    int presetCol = (int)item.Item4; 
-                    preset.Add((index, setting, presetRow, presetCol));
-                }
+                TargetSheet.Items.Clear();
+                foreach (var item in PasteBook.Worksheets)
+                    TargetSheet.Items.Add(item);
+
             }
 
-            int Highest = preset.Select(t => int.Parse(t.index.Last().ToString())).Max();
-            for (int i = 0; i < Highest; i++)
-            {
-                GetAddrData.Add(("0", "0", 0, 0));
-                GetAddrTarget.Add(("0", "0", 0, 0));
-                dataHandle.Add((0,"0", "0"));
-            }
-            foreach (var item in preset)
-            {
-                if (item.index.Contains("Data"))
-                {
-                    GetAddrData[int.Parse(item.index.Last().ToString()) - 1] = item;
-                }
-                else
-                {
-                    GetAddrTarget[int.Parse(item.index.Last().ToString()) - 1] = item;
-                }
-            }
-            if (data.datahandle != null)
-            {
-                foreach (var item in data.datahandle)
-                {
-                    string item1 = item.Item1;
-                    string item2 = item.Item2;
-                    string item3 = item.Item3;
-                    dataHandle[int.Parse(item1.Last().ToString())-1] = ((int.Parse(item1.Last().ToString()), item2, item3));
-                }
-            }
         }
         private void Delete_Click(object sender, EventArgs e)
         {
@@ -517,6 +528,7 @@ namespace ExcelInteropGUI
             }
             else
             {
+                preset.Clear();
                 DialogResult deleteconfirmation = MessageBox.Show($"Are you sure you want to delete {SelectPreset.SelectedItem}",
                     "Unsaved Change",
                     MessageBoxButtons.YesNo,
@@ -525,6 +537,12 @@ namespace ExcelInteropGUI
                 {
                     case DialogResult.Yes:
                         File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset", SelectPreset.SelectedItem.ToString()));
+                        SelectPreset.Items.Clear();
+                        PresetAddr = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset"), "*.json");
+                        foreach (string p in PresetAddr)
+                        {
+                            SelectPreset.Items.Add(Path.GetFileName(p));
+                        }
                         break;
                     case DialogResult.No:
                         return;
@@ -532,6 +550,15 @@ namespace ExcelInteropGUI
             }
 
         }
+
+        private void SelectPreset_Validating(object sender, CancelEventArgs e)
+        {
+        }
+
+        private void SelectPreset_Leave(object sender, EventArgs e)
+        {
+        }
+
         private void TargetFile()
         {
             OnFunctionStart?.Invoke("Resetting the data");
@@ -595,8 +622,11 @@ namespace ExcelInteropGUI
                     DataRow datarow = TargetTable.NewRow();
                     for (int j = 1; j <= lastcol; j++) // Use 1-based index for columns
                     {
-                        var cellValue = To.Cell(i,j).Value; // Store cell value in a variable
-                        datarow[j - 1] = cellValue; // Adjust for 0-based index in DataRow
+                        if (!To.Cell(i, j).HasFormula)
+                        {
+                            var cellValue = To.Cell(i, j).Value; // Store cell value in a variable
+                            datarow[j - 1] = cellValue; // Adjust for 0-based index in DataRow
+                        }
                     }
                     TargetTable.Rows.Add(datarow);
                 }
@@ -639,6 +669,7 @@ namespace ExcelInteropGUI
             ToSheet = null;
             PasteBook = null;
             TargetFileClicked = false;
+            TargetTable.Reset();
         }
         private void SafeInvoke(System.Windows.Forms.Control control, Action uiUpdate)
         {
@@ -648,6 +679,57 @@ namespace ExcelInteropGUI
             }
             else { 
             uiUpdate();
+            }
+        }
+        private void ReadJson()
+        {
+            string file = SelectPreset.SelectedItem.ToString();
+            Selected_json = file.Substring(0, file.LastIndexOf("."));
+            string json = File.ReadAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset", SelectPreset.SelectedItem.ToString())}");
+            dynamic data = JsonConvert.DeserializeObject<dynamic>(json);
+            GetAddrData.Clear();
+            GetAddrTarget.Clear();
+            dataHandle.Clear();
+            preset.Clear();
+            if (data.Preset != null)
+            {
+                foreach (var item in data.Preset)
+                {
+                    string index = item.Item1;
+                    string setting = item.Item2;
+                    int presetRow = (int)item.Item3;
+                    int presetCol = (int)item.Item4;
+                    preset.Add((index, setting, presetRow, presetCol));
+                }
+            }
+
+            int Highest = preset.Select(t => int.Parse(t.index.Last().ToString())).Max();
+            for (int i = 0; i < Highest; i++)
+            {
+                GetAddrData.Add(("0", "0", 0, 0));
+                GetAddrTarget.Add(("0", "0", 0, 0));
+                dataHandle.Add((0, "0", "0"));
+            }
+            foreach (var item in preset)
+            {
+                if (item.index.Contains("Data"))
+                {
+                    GetAddrData[int.Parse(item.index.Last().ToString()) - 1] = item;
+                }
+                else
+                {
+                    GetAddrTarget[int.Parse(item.index.Last().ToString()) - 1] = item;
+                }
+            }
+            if (data.datahandle != null)
+            {
+                foreach (var item in data.datahandle)
+                {
+                    string item1 = item.Item1;
+                    string item2 = item.Item2;
+                    string item3 = item.Item3;
+                    dataHandle[int.Parse(item1.Last().ToString()) - 1] = ((int.Parse(item1.Last().ToString()), item2, item3));
+                }
             }
         }
 

@@ -14,6 +14,7 @@ namespace ExcelInteropGUI
     {
         public System.Data.DataTable DatatoClick { get; set; } = new System.Data.DataTable();
         public Action<(int rowInd, int ColInd, object CellVal)> selectedData;
+        public List<(int row, int col)> Highlight { get; set; } = new List<(int row, int col)>();
         public SelectDataForm()
         {
             InitializeComponent();
@@ -28,6 +29,8 @@ namespace ExcelInteropGUI
             CellToChose.AutoResizeColumn((int)DataGridViewAutoSizeColumnMode.AllCells);
             CellToChose.Dock = DockStyle.Fill;
             CellToChose.PerformLayout();
+            if(Highlight.Count > 0 && Highlight.Count<CellToChose.RowCount) 
+                CellToChose.Rows[Highlight[0].row-1].Cells[Highlight[0].col-1].Style.BackColor = Color.Yellow;
             foreach(DataGridViewColumn column in CellToChose.Columns)
             {
                 width += column.Width;
