@@ -43,7 +43,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.MakePreset = new System.Windows.Forms.Button();
             this.FolderBtn = new System.Windows.Forms.Button();
-            this.RefreshPreset = new System.Windows.Forms.Button();
+            this.EditPreset = new System.Windows.Forms.Button();
             this.DeleteBtn = new System.Windows.Forms.Button();
             this.SelectPreset = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
@@ -193,15 +193,15 @@
             this.FolderBtn.UseVisualStyleBackColor = false;
             this.FolderBtn.Click += new System.EventHandler(this.FolderBtn_Click);
             // 
-            // RefreshPreset
+            // EditPreset
             // 
-            this.RefreshPreset.Location = new System.Drawing.Point(155, 206);
-            this.RefreshPreset.Name = "RefreshPreset";
-            this.RefreshPreset.Size = new System.Drawing.Size(70, 29);
-            this.RefreshPreset.TabIndex = 17;
-            this.RefreshPreset.Text = "Refresh";
-            this.RefreshPreset.UseVisualStyleBackColor = true;
-            this.RefreshPreset.Click += new System.EventHandler(this.Refreshbtn_Click);
+            this.EditPreset.Location = new System.Drawing.Point(155, 206);
+            this.EditPreset.Name = "EditPreset";
+            this.EditPreset.Size = new System.Drawing.Size(70, 29);
+            this.EditPreset.TabIndex = 17;
+            this.EditPreset.Text = "Edit";
+            this.EditPreset.UseVisualStyleBackColor = true;
+            this.EditPreset.Click += new System.EventHandler(this.EditPreset_Click);
             // 
             // DeleteBtn
             // 
@@ -222,6 +222,7 @@
             this.SelectPreset.Size = new System.Drawing.Size(196, 24);
             this.SelectPreset.TabIndex = 19;
             this.SelectPreset.SelectedIndexChanged += new System.EventHandler(this.SelectPreset_SelectedIndexChanged);
+            this.SelectPreset.Click += new System.EventHandler(this.SelectPreset_Click);
             // 
             // Menu
             // 
@@ -230,7 +231,7 @@
             this.ClientSize = new System.Drawing.Size(786, 400);
             this.Controls.Add(this.SelectPreset);
             this.Controls.Add(this.DeleteBtn);
-            this.Controls.Add(this.RefreshPreset);
+            this.Controls.Add(this.EditPreset);
             this.Controls.Add(this.MakePreset);
             this.Controls.Add(this.FolderBtn);
             this.Controls.Add(this.label2);
@@ -272,7 +273,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button FolderBtn;
         private System.Windows.Forms.Button MakePreset;
-        private System.Windows.Forms.Button RefreshPreset;
+        private System.Windows.Forms.Button EditPreset;
         private System.Windows.Forms.Button DeleteBtn;
         private System.Windows.Forms.ComboBox SelectPreset;
     }

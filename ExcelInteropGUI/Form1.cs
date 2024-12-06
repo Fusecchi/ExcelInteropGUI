@@ -46,6 +46,7 @@ namespace ExcelInteropGUI
         public Action<string> OnFunctionStart;
         string Tp;
         string[] PresetAddr;
+        public event Action editPresetClicked;
         bool SourceFileClicked, TargetFileClicked;
         List<(string index, string setting, int PresetRow, int PresetCol)> preset = new List<(string index, string setting, int PresetRow, int PresetCol)>();
         List<(int index, string type, string rmvchr)> dataHandle = new List<(int index, string type, string rmvchr)>();
@@ -388,11 +389,15 @@ namespace ExcelInteropGUI
         {
 
             OnFunctionStart?.Invoke("Making Table");
-            Setting setting = new Setting();
+            Setting setting = new Setting(this);
             setting.DataTable = DataTable;
             setting.to = TargetName.Text;
             setting.from = FileName.Text;
             setting.TargetTable = TargetTable;
+            setting.Preset = preset;
+            setting.datahandletoRtn = dataHandle;
+            if(!string.IsNullOrEmpty(TargetName.Text) && preset != null &&!string.IsNullOrEmpty(FileType.Text) )
+                editPresetClicked?.Invoke();
             setting.FormClosed += (s, args) => this.Show();
             setting.Show();
             this.Hide();
@@ -450,14 +455,9 @@ namespace ExcelInteropGUI
             OnFunctionStart?.Invoke("Saving Book");
             PasteBook.Save();
         }
-        private void Refreshbtn_Click(object sender, EventArgs e)
+        public void EditPreset_Click(object sender, EventArgs e)
         {
-            SelectPreset.Items.Clear();
-            PresetAddr = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset"), "*.json");
-            foreach (string p in PresetAddr)
-            {
-                SelectPreset.Items.Add(Path.GetFileName(p));
-            }
+            makePreset_Click(sender, e);
 
         }
         private void SelectPreset_SelectedIndexChanged(object sender, EventArgs e)
@@ -509,6 +509,15 @@ namespace ExcelInteropGUI
                 }
             }
         }
+        private void SelectPreset_Click(object sender, EventArgs e)
+        {
+            SelectPreset.Items.Clear();
+            PresetAddr = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset"), "*.json");
+            foreach (string p in PresetAddr)
+            {
+                SelectPreset.Items.Add(Path.GetFileName(p));
+            }
+        }
         private void Delete_Click(object sender, EventArgs e)
         {
             if(SelectPreset.SelectedItem == null)
@@ -525,6 +534,12 @@ namespace ExcelInteropGUI
                 {
                     case DialogResult.Yes:
                         File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset", SelectPreset.SelectedItem.ToString()));
+                        SelectPreset.Items.Clear();
+                        PresetAddr = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset"), "*.json");
+                        foreach (string p in PresetAddr)
+                        {
+                            SelectPreset.Items.Add(Path.GetFileName(p));
+                        }
                         break;
                     case DialogResult.No:
                         return;
@@ -595,8 +610,11 @@ namespace ExcelInteropGUI
                     DataRow datarow = TargetTable.NewRow();
                     for (int j = 1; j <= lastcol; j++) // Use 1-based index for columns
                     {
-                        var cellValue = To.Cell(i,j).Value; // Store cell value in a variable
-                        datarow[j - 1] = cellValue; // Adjust for 0-based index in DataRow
+                        if (!To.Cell(i, j).HasFormula)
+                        {
+                            var cellValue = To.Cell(i, j).Value; // Store cell value in a variable
+                            datarow[j - 1] = cellValue; // Adjust for 0-based index in DataRow
+                        }
                     }
                     TargetTable.Rows.Add(datarow);
                 }
