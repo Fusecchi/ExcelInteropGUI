@@ -29,8 +29,12 @@ namespace ExcelInteropGUI
             CellToChose.AutoResizeColumn((int)DataGridViewAutoSizeColumnMode.AllCells);
             CellToChose.Dock = DockStyle.Fill;
             CellToChose.PerformLayout();
+<<<<<<< HEAD
             if(Highlight.Count > 0 && Highlight.Count<CellToChose.RowCount) 
                 CellToChose.Rows[Highlight[0].row-1].Cells[Highlight[0].col-1].Style.BackColor = Color.Yellow;
+=======
+            CellToChose.Rows[Highlight[0].row-1].Cells[Highlight[0].col-1].Style.BackColor = Color.Yellow;
+>>>>>>> 0d5efcebdb9e9205644ac9bead6c701bfb0d828f
             foreach(DataGridViewColumn column in CellToChose.Columns)
             {
                 width += column.Width;
