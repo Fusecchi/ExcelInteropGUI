@@ -166,7 +166,8 @@ namespace ExcelInteropGUI
             {
                 if (SelectPreset.SelectedItem == null || string.IsNullOrWhiteSpace(SelectPreset.Text))
                 {
-                    Debug.WriteLine("Super");
+                    MessageBox.Show("Preset isn't Selected!");
+                    return;
                 }
                 if (DataChecker != TargetType)
                 {
@@ -419,6 +420,9 @@ namespace ExcelInteropGUI
                 this.Show();
                 SelectPreset_SelectedIndexChanged(null, EventArgs.Empty);
             };
+            if(!string.IsNullOrEmpty(TargetName.Text) && preset != null &&!string.IsNullOrEmpty(FileType.Text) )
+                editPresetClicked?.Invoke();
+            setting.FormClosed += (s, args) => this.Show();
             setting.Show();
             this.Hide();
 
@@ -520,6 +524,7 @@ namespace ExcelInteropGUI
             }
 
         }
+
         private void Delete_Click(object sender, EventArgs e)
         {
             if(SelectPreset.SelectedItem == null)
