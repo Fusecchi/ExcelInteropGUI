@@ -169,11 +169,11 @@ namespace ExcelInteropGUI
                         Preset.RemoveAt(indexT);
                     }
                 }
-                if( index != -1)
+                if( index > 0 && indexT<0)
                 {
                     Preset.RemoveAt(index);
                 }
-                if (indexT != -1)
+                if (indexT > 0 && index<0)
                 {
                     Preset.RemoveAt(indexT);
                 }
@@ -344,7 +344,6 @@ namespace ExcelInteropGUI
         }
         private void EditPreset()
         {
-
             int Highest = Preset.Select(t => int.Parse(t.DataIndex.Last().ToString())).Max();
             for (int i = 0; i < Highest; i++) {
                 button3_Click(this,EventArgs.Empty);
@@ -370,25 +369,23 @@ namespace ExcelInteropGUI
                     }
                 }
             }
-            foreach(var data in datahandletoRtn)
+            foreach(var data in groupBoxes)
             {
-                for (int i = 0; i < groupBoxes.Count; i++)
+                for (int i = 0; i < datahandletoRtn.Count; i++)
                 {
                     GroupBox gb = groupBoxes[i];
-                    if (datahandletoRtn[i].DataIndex != i)
+                    foreach (Control control in gb.Controls)
                     {
-                        foreach (Control control in gb.Controls)
+                        if (control is RadioButton RB && RB.Text == $"{datahandletoRtn[i].handle}")
                         {
-                            if (control is RadioButton RB && RB.Text == $"{datahandletoRtn[i].handle}")
-                            {
-                                RB.Checked = true;
-                            }
-                            if (control is TextBox TB )
-                            {
-                                TB.Text = $"{datahandletoRtn[i].remove}"; 
-                            }
+                            RB.Checked = true;
+                        }
+                        if (control is TextBox TB )
+                        {
+                            TB.Text = $"{datahandletoRtn[i].remove}"; 
                         }
                     }
+                    
                 }
             }
         }
