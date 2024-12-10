@@ -34,13 +34,9 @@ namespace ExcelInteropGUI
         {
             InitializeComponent();
             menu.editPresetClicked += EditPreset;
-<<<<<<< HEAD
             textBox1.Text = menu.Selected_json;
             this.FormClosed += (s, args) => menu.editPresetClicked -= EditPreset;
             this.MaximizeBox = false;
-=======
-            this.FormClosed += (s, args) => menu.editPresetClicked -= EditPreset;
->>>>>>> 0d5efcebdb9e9205644ac9bead6c701bfb0d828f
         }
 
 
@@ -59,10 +55,7 @@ namespace ExcelInteropGUI
             }
             File.WriteAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset",textBox1.Text)}.json", json);
             MessageBox.Show($"Saved as {textBox1.Text}.json");
-<<<<<<< HEAD
 
-=======
->>>>>>> 0d5efcebdb9e9205644ac9bead6c701bfb0d828f
         }
         private void button3_Click(object sender, EventArgs e)
         {
@@ -133,13 +126,8 @@ namespace ExcelInteropGUI
             };
             Label Llabel = new Label
             {
-<<<<<<< HEAD
                 Location = new System.Drawing.Point(Lbutton.Width + Lbutton.Location.X, ypos),
                 Size = new Size(50, 50),
-=======
-                Location = new System.Drawing.Point(Lbutton.Width + Lbutton.Location.X + GapX, ypos),
-                Size = new Size(50, 30),
->>>>>>> 0d5efcebdb9e9205644ac9bead6c701bfb0d828f
                 Tag = $"Target File {BtnIterration}"
             };
             Button RmBtn = new Button
@@ -356,10 +344,7 @@ namespace ExcelInteropGUI
         }
         private void EditPreset()
         {
-<<<<<<< HEAD
 
-=======
->>>>>>> 0d5efcebdb9e9205644ac9bead6c701bfb0d828f
             int Highest = Preset.Select(t => int.Parse(t.DataIndex.Last().ToString())).Max();
             for (int i = 0; i < Highest; i++) {
                 button3_Click(this,EventArgs.Empty);
@@ -374,18 +359,10 @@ namespace ExcelInteropGUI
                             {
                                 Dlbl.Text = "Row : " + item.PresetRow + " \n " +
                                     "Col : " + item.PresetCol;
-<<<<<<< HEAD
                                 Debug.WriteLine("-------");
                                 Debug.WriteLine(Dlbl.Tag);
                                 Debug.WriteLine($"Row : { item.PresetRow}");
                                 Debug.WriteLine($"Col : {item.PresetCol}");
-=======
-                                Debug.WriteLine("------- This Part is For Data");
-                                Debug.WriteLine(Dlbl.Tag.ToString());
-                                Debug.WriteLine("Current Group Box : " + (i + 1));
-                                Debug.WriteLine(item);
-                                Debug.WriteLine("-------");
->>>>>>> 0d5efcebdb9e9205644ac9bead6c701bfb0d828f
                             }
                         }
 
@@ -398,11 +375,7 @@ namespace ExcelInteropGUI
                 for (int i = 0; i < groupBoxes.Count; i++)
                 {
                     GroupBox gb = groupBoxes[i];
-<<<<<<< HEAD
                     if (datahandletoRtn[i].DataIndex != i)
-=======
-                    if (datahandletoRtn[0].DataIndex-1 != i)
->>>>>>> 0d5efcebdb9e9205644ac9bead6c701bfb0d828f
                     {
                         foreach (Control control in gb.Controls)
                         {

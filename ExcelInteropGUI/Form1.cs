@@ -420,7 +420,7 @@ namespace ExcelInteropGUI
                 this.Show();
                 SelectPreset_SelectedIndexChanged(null, EventArgs.Empty);
             };
-            if(!string.IsNullOrEmpty(TargetName.Text) && preset != null &&!string.IsNullOrEmpty(FileType.Text) )
+            if(!string.IsNullOrEmpty(TargetName.Text) && preset.Count != 0 &&!string.IsNullOrEmpty(FileType.Text) )
                 editPresetClicked?.Invoke();
             setting.FormClosed += (s, args) => this.Show();
             setting.Show();
@@ -688,54 +688,58 @@ namespace ExcelInteropGUI
         }
         private void ReadJson()
         {
-            string file = SelectPreset.SelectedItem.ToString();
-            Selected_json = file.Substring(0, file.LastIndexOf("."));
-            string json = File.ReadAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset", SelectPreset.SelectedItem.ToString())}");
-            dynamic data = JsonConvert.DeserializeObject<dynamic>(json);
-            GetAddrData.Clear();
-            GetAddrTarget.Clear();
-            dataHandle.Clear();
-            preset.Clear();
-            if (data.Preset != null)
+            if (SelectPreset.SelectedItem != null || !string.IsNullOrWhiteSpace(SelectPreset.Text))
             {
-                foreach (var item in data.Preset)
+                string file = SelectPreset.SelectedItem.ToString();
+                Selected_json = file.Substring(0, file.LastIndexOf("."));
+                string json = File.ReadAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset", SelectPreset.SelectedItem.ToString())}");
+                dynamic data = JsonConvert.DeserializeObject<dynamic>(json);
+                GetAddrData.Clear();
+                GetAddrTarget.Clear();
+                dataHandle.Clear();
+                preset.Clear();
+                if (data.Preset != null)
                 {
-                    string index = item.Item1;
-                    string setting = item.Item2;
-                    int presetRow = (int)item.Item3;
-                    int presetCol = (int)item.Item4;
-                    preset.Add((index, setting, presetRow, presetCol));
+                    foreach (var item in data.Preset)
+                    {
+                        string index = item.Item1;
+                        string setting = item.Item2;
+                        int presetRow = (int)item.Item3;
+                        int presetCol = (int)item.Item4;
+                        preset.Add((index, setting, presetRow, presetCol));
+                    }
+                }
+
+                int Highest = preset.Select(t => int.Parse(t.index.Last().ToString())).Max();
+                for (int i = 0; i < Highest; i++)
+                {
+                    GetAddrData.Add(("0", "0", 0, 0));
+                    GetAddrTarget.Add(("0", "0", 0, 0));
+                    dataHandle.Add((0, "0", "0"));
+                }
+                foreach (var item in preset)
+                {
+                    if (item.index.Contains("Data"))
+                    {
+                        GetAddrData[int.Parse(item.index.Last().ToString()) - 1] = item;
+                    }
+                    else
+                    {
+                        GetAddrTarget[int.Parse(item.index.Last().ToString()) - 1] = item;
+                    }
+                }
+                if (data.datahandle != null)
+                {
+                    foreach (var item in data.datahandle)
+                    {
+                        string item1 = item.Item1;
+                        string item2 = item.Item2;
+                        string item3 = item.Item3;
+                        dataHandle[int.Parse(item1.Last().ToString()) - 1] = ((int.Parse(item1.Last().ToString()), item2, item3));
+                    }
                 }
             }
 
-            int Highest = preset.Select(t => int.Parse(t.index.Last().ToString())).Max();
-            for (int i = 0; i < Highest; i++)
-            {
-                GetAddrData.Add(("0", "0", 0, 0));
-                GetAddrTarget.Add(("0", "0", 0, 0));
-                dataHandle.Add((0, "0", "0"));
-            }
-            foreach (var item in preset)
-            {
-                if (item.index.Contains("Data"))
-                {
-                    GetAddrData[int.Parse(item.index.Last().ToString()) - 1] = item;
-                }
-                else
-                {
-                    GetAddrTarget[int.Parse(item.index.Last().ToString()) - 1] = item;
-                }
-            }
-            if (data.datahandle != null)
-            {
-                foreach (var item in data.datahandle)
-                {
-                    string item1 = item.Item1;
-                    string item2 = item.Item2;
-                    string item3 = item.Item3;
-                    dataHandle[int.Parse(item1.Last().ToString()) - 1] = ((int.Parse(item1.Last().ToString()), item2, item3));
-                }
-            }
         }
 
     }
