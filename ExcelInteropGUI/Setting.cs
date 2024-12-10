@@ -209,6 +209,17 @@ namespace ExcelInteropGUI
                         Preset[j] = (newDataIndex, original_list.setting, original_list.PresetRow, original_list.PresetCol);
                     }
                 }
+                for(int x = 0; x < datahandle.Count; x++)
+                {
+                    var original_dataHand = datahandle[x];
+                    var datahand_lastval = int.Parse(original_dataHand.DataIndex.Last().ToString());
+                    var control = groupboxind + 2;
+                    if (datahand_lastval >= control)
+                    {
+                        string newDatahandInd = original_dataHand.DataIndex.Substring(0,original_dataHand.DataIndex.Length -1) + (datahand_lastval - 1).ToString();
+                        datahandle[x] = (newDatahandInd, original_dataHand.handle, original_dataHand.remove);
+                    }
+                }
             };
 
             button.Click += (s, args) =>

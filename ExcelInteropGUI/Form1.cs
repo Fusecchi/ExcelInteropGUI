@@ -23,6 +23,7 @@ using DocumentFormat.OpenXml.Drawing;
 using Path = System.IO.Path;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DateTime = System.DateTime;
+using System.Resources;
 
 
 namespace ExcelInteropGUI
@@ -73,6 +74,7 @@ namespace ExcelInteropGUI
         {
             InitializeComponent();
             this.MaximizeBox = false;
+            this.ResizeRedraw = false;
         }
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -427,10 +429,11 @@ namespace ExcelInteropGUI
             //This Function will run when the event is raised
             //The table from Editwin will Replace the EditData
             EditData = updatedTable;
-            //Save the changed value in the list below
-            foreach (var item in values)
+            foreach(var item in values)
             {
-                From.Cell(item.ChangedRow + 1, item.ChangedCol + 1).Value = updatedTable.Rows[item.ChangedRow][item.ChangedCol].ToString();
+                Debug.WriteLine("Before: "+From.Cell(CellAddr[item.ChangedRow], item.ChangedCol+1).Value);
+                From.Cell(CellAddr[item.ChangedRow], item.ChangedCol+1).Value = EditData.Rows[item.ChangedRow][item.ChangedCol]?.ToString();
+                Debug.WriteLine("After: " + From.Cell(CellAddr[item.ChangedRow], item.ChangedCol+1).Value);
             }
 
         }
@@ -575,10 +578,10 @@ namespace ExcelInteropGUI
         }
         private void FolderBtn_Click(object sender, EventArgs e)
         {
-            Process.Start(Tp);
+            Process.Start(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理"), NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
         }
 
-        //Preset edit/make
+        // edit/make Preset
         private void makePreset_Click(object sender, EventArgs e)
         {
             
@@ -594,6 +597,8 @@ namespace ExcelInteropGUI
                 this.Show();
                 SelectPreset_SelectedIndexChanged(null, EventArgs.Empty);
             };
+            if (!string.IsNullOrEmpty(TargetName.Text) && preset != null && !string.IsNullOrEmpty(FileType.Text))
+                editPresetClicked?.Invoke();
             setting.FormClosed += (s, args) => this.Show();
             setting.Show();
             this.Hide();
@@ -604,8 +609,6 @@ namespace ExcelInteropGUI
             if (SelectPreset.SelectedItem != null || !string.IsNullOrWhiteSpace(SelectPreset.Text))
             {
                 makePreset_Click(sender, e);
-                if (!string.IsNullOrEmpty(TargetName.Text) && preset != null && !string.IsNullOrEmpty(FileType.Text))
-                    editPresetClicked?.Invoke();
             }
             else
                 MessageBox.Show("Preset isn't Selected");
@@ -682,9 +685,9 @@ namespace ExcelInteropGUI
             int Highest = preset.Select(t => int.Parse(t.index.Last().ToString())).Max();
             for (int i = 0; i < Highest; i++)
             {
-                GetAddrData.Add(("0", "0", 0, 0));
-                GetAddrTarget.Add(("0", "0", 0, 0));
-                dataHandle.Add((0, "0", "0"));
+                GetAddrData.Add(("", "", 0, 0));
+                GetAddrTarget.Add(("", "", 0, 0));
+                dataHandle.Add((0, "", ""));
             }
             foreach (var item in preset)
             {
@@ -700,16 +703,17 @@ namespace ExcelInteropGUI
             if (data.datahandle != null)
             {
                 foreach (var item in data.datahandle)
-                    if (item.index > 0)
+                {
+                    string item1 = item.Item1;
+                    string item2 = item.Item2;
+                    string item3 = item.Item3;
+                    if (int.Parse(item1.Last().ToString()) > 0)
                     {
-                        string item1 = item.Item1;
-                        string item2 = item.Item2;
-                        string item3 = item.Item3;
                         dataHandle[int.Parse(item1.Last().ToString()) - 1] = ((int.Parse(item1.Last().ToString()), item2, item3));
                     }
+                }
+
             }
-
-
         }
 
         //Reset Button
@@ -780,5 +784,18 @@ namespace ExcelInteropGUI
         {
         }
 
+        //Change Language
+        private void English_RB_CheckedChanged(object sender, EventArgs e)
+        {
+            if (English_RB.Checked) {
+                //ResourceManager rm = new ResourceManager(
+            //Language_Label.Text = Properties.Resources.label
+            }
+        }
+
+        private void Japanese_RB_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

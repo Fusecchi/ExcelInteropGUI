@@ -51,11 +51,14 @@
             this.NewBookSave = new System.Windows.Forms.TextBox();
             this.CSVNew_Save = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.English_RB = new System.Windows.Forms.RadioButton();
+            this.Japanese_RB = new System.Windows.Forms.RadioButton();
+            this.Language_Label = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // SelectData
             // 
-            this.SelectData.Location = new System.Drawing.Point(38, 26);
+            this.SelectData.Location = new System.Drawing.Point(39, 58);
             this.SelectData.Name = "SelectData";
             this.SelectData.Size = new System.Drawing.Size(83, 31);
             this.SelectData.TabIndex = 0;
@@ -66,7 +69,7 @@
             // DataSelected
             // 
             this.DataSelected.AutoSize = true;
-            this.DataSelected.Location = new System.Drawing.Point(35, 95);
+            this.DataSelected.Location = new System.Drawing.Point(36, 127);
             this.DataSelected.Name = "DataSelected";
             this.DataSelected.Size = new System.Drawing.Size(93, 16);
             this.DataSelected.TabIndex = 2;
@@ -75,7 +78,7 @@
             // FileType
             // 
             this.FileType.Enabled = false;
-            this.FileType.Location = new System.Drawing.Point(155, 92);
+            this.FileType.Location = new System.Drawing.Point(156, 124);
             this.FileType.Name = "FileType";
             this.FileType.ReadOnly = true;
             this.FileType.Size = new System.Drawing.Size(196, 22);
@@ -84,7 +87,7 @@
             // FileName
             // 
             this.FileName.Enabled = false;
-            this.FileName.Location = new System.Drawing.Point(155, 30);
+            this.FileName.Location = new System.Drawing.Point(156, 62);
             this.FileName.Name = "FileName";
             this.FileName.ReadOnly = true;
             this.FileName.Size = new System.Drawing.Size(196, 22);
@@ -92,9 +95,9 @@
             // 
             // EditButton
             // 
-            this.EditButton.Location = new System.Drawing.Point(364, 339);
+            this.EditButton.Location = new System.Drawing.Point(361, 411);
             this.EditButton.Name = "EditButton";
-            this.EditButton.Size = new System.Drawing.Size(75, 23);
+            this.EditButton.Size = new System.Drawing.Size(75, 31);
             this.EditButton.TabIndex = 6;
             this.EditButton.Text = "Edit";
             this.EditButton.UseVisualStyleBackColor = true;
@@ -102,9 +105,9 @@
             // 
             // SendButton
             // 
-            this.SendButton.Location = new System.Drawing.Point(59, 339);
+            this.SendButton.Location = new System.Drawing.Point(56, 411);
             this.SendButton.Name = "SendButton";
-            this.SendButton.Size = new System.Drawing.Size(69, 23);
+            this.SendButton.Size = new System.Drawing.Size(69, 31);
             this.SendButton.TabIndex = 7;
             this.SendButton.Text = "Send";
             this.SendButton.UseVisualStyleBackColor = true;
@@ -112,7 +115,7 @@
             // 
             // SelectTarget
             // 
-            this.SelectTarget.Location = new System.Drawing.Point(397, 26);
+            this.SelectTarget.Location = new System.Drawing.Point(398, 58);
             this.SelectTarget.Name = "SelectTarget";
             this.SelectTarget.Size = new System.Drawing.Size(104, 31);
             this.SelectTarget.TabIndex = 8;
@@ -123,7 +126,7 @@
             // SelectSheet
             // 
             this.SelectSheet.AutoSize = true;
-            this.SelectSheet.Location = new System.Drawing.Point(408, 95);
+            this.SelectSheet.Location = new System.Drawing.Point(409, 127);
             this.SelectSheet.Name = "SelectSheet";
             this.SelectSheet.Size = new System.Drawing.Size(83, 16);
             this.SelectSheet.TabIndex = 9;
@@ -134,7 +137,7 @@
             // 
             this.TargetSheet.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.TargetSheet.FormattingEnabled = true;
-            this.TargetSheet.Location = new System.Drawing.Point(520, 92);
+            this.TargetSheet.Location = new System.Drawing.Point(521, 124);
             this.TargetSheet.Name = "TargetSheet";
             this.TargetSheet.Size = new System.Drawing.Size(196, 24);
             this.TargetSheet.TabIndex = 10;
@@ -144,7 +147,7 @@
             // TargetName
             // 
             this.TargetName.Enabled = false;
-            this.TargetName.Location = new System.Drawing.Point(520, 30);
+            this.TargetName.Location = new System.Drawing.Point(521, 62);
             this.TargetName.Name = "TargetName";
             this.TargetName.ReadOnly = true;
             this.TargetName.Size = new System.Drawing.Size(196, 22);
@@ -152,9 +155,9 @@
             // 
             // ResetButton
             // 
-            this.ResetButton.Location = new System.Drawing.Point(638, 339);
+            this.ResetButton.Location = new System.Drawing.Point(635, 411);
             this.ResetButton.Name = "ResetButton";
-            this.ResetButton.Size = new System.Drawing.Size(78, 23);
+            this.ResetButton.Size = new System.Drawing.Size(78, 31);
             this.ResetButton.TabIndex = 12;
             this.ResetButton.Text = "Reset";
             this.ResetButton.UseVisualStyleBackColor = true;
@@ -163,7 +166,7 @@
             // PresetLabel
             // 
             this.PresetLabel.AutoSize = true;
-            this.PresetLabel.Location = new System.Drawing.Point(48, 207);
+            this.PresetLabel.Location = new System.Drawing.Point(49, 239);
             this.PresetLabel.Name = "PresetLabel";
             this.PresetLabel.Size = new System.Drawing.Size(46, 16);
             this.PresetLabel.TabIndex = 13;
@@ -171,7 +174,7 @@
             // 
             // MakePreset
             // 
-            this.MakePreset.Location = new System.Drawing.Point(38, 249);
+            this.MakePreset.Location = new System.Drawing.Point(39, 281);
             this.MakePreset.Name = "MakePreset";
             this.MakePreset.Size = new System.Drawing.Size(65, 45);
             this.MakePreset.TabIndex = 16;
@@ -183,7 +186,7 @@
             // 
             this.FolderBtn.BackColor = System.Drawing.SystemColors.Control;
             this.FolderBtn.Image = global::ExcelInteropGUI.Properties.Resources.Folder_Icon_Template_Design_Vector_Graphics_13725642_1__Custom_1;
-            this.FolderBtn.Location = new System.Drawing.Point(736, 26);
+            this.FolderBtn.Location = new System.Drawing.Point(735, 232);
             this.FolderBtn.Name = "FolderBtn";
             this.FolderBtn.Size = new System.Drawing.Size(38, 31);
             this.FolderBtn.TabIndex = 15;
@@ -192,7 +195,7 @@
             // 
             // EditPreset
             // 
-            this.EditPreset.Location = new System.Drawing.Point(155, 249);
+            this.EditPreset.Location = new System.Drawing.Point(156, 281);
             this.EditPreset.Name = "EditPreset";
             this.EditPreset.Size = new System.Drawing.Size(70, 45);
             this.EditPreset.TabIndex = 17;
@@ -202,7 +205,7 @@
             // 
             // DeleteBtn
             // 
-            this.DeleteBtn.Location = new System.Drawing.Point(281, 249);
+            this.DeleteBtn.Location = new System.Drawing.Point(282, 281);
             this.DeleteBtn.Name = "DeleteBtn";
             this.DeleteBtn.Size = new System.Drawing.Size(70, 45);
             this.DeleteBtn.TabIndex = 18;
@@ -214,7 +217,7 @@
             // 
             this.SelectPreset.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.SelectPreset.FormattingEnabled = true;
-            this.SelectPreset.Location = new System.Drawing.Point(155, 204);
+            this.SelectPreset.Location = new System.Drawing.Point(156, 236);
             this.SelectPreset.Name = "SelectPreset";
             this.SelectPreset.Size = new System.Drawing.Size(196, 24);
             this.SelectPreset.TabIndex = 19;
@@ -225,7 +228,7 @@
             // 
             // Add_NewSheet
             // 
-            this.Add_NewSheet.Location = new System.Drawing.Point(652, 141);
+            this.Add_NewSheet.Location = new System.Drawing.Point(653, 173);
             this.Add_NewSheet.Name = "Add_NewSheet";
             this.Add_NewSheet.Size = new System.Drawing.Size(64, 46);
             this.Add_NewSheet.TabIndex = 20;
@@ -235,7 +238,7 @@
             // 
             // New_Sheet
             // 
-            this.New_Sheet.Location = new System.Drawing.Point(411, 153);
+            this.New_Sheet.Location = new System.Drawing.Point(412, 185);
             this.New_Sheet.Name = "New_Sheet";
             this.New_Sheet.Size = new System.Drawing.Size(224, 22);
             this.New_Sheet.TabIndex = 21;
@@ -243,7 +246,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(408, 212);
+            this.label1.Location = new System.Drawing.Point(409, 244);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(66, 16);
             this.label1.TabIndex = 22;
@@ -251,14 +254,14 @@
             // 
             // NewBookSave
             // 
-            this.NewBookSave.Location = new System.Drawing.Point(507, 206);
+            this.NewBookSave.Location = new System.Drawing.Point(508, 238);
             this.NewBookSave.Name = "NewBookSave";
             this.NewBookSave.Size = new System.Drawing.Size(209, 22);
             this.NewBookSave.TabIndex = 23;
             // 
             // CSVNew_Save
             // 
-            this.CSVNew_Save.Location = new System.Drawing.Point(155, 153);
+            this.CSVNew_Save.Location = new System.Drawing.Point(156, 185);
             this.CSVNew_Save.Name = "CSVNew_Save";
             this.CSVNew_Save.Size = new System.Drawing.Size(196, 22);
             this.CSVNew_Save.TabIndex = 25;
@@ -266,17 +269,53 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(43, 159);
+            this.label2.Location = new System.Drawing.Point(44, 191);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(66, 16);
             this.label2.TabIndex = 24;
             this.label2.Text = "Saved As";
             // 
+            // English_RB
+            // 
+            this.English_RB.AutoSize = true;
+            this.English_RB.Location = new System.Drawing.Point(489, 12);
+            this.English_RB.Name = "English_RB";
+            this.English_RB.Size = new System.Drawing.Size(72, 20);
+            this.English_RB.TabIndex = 26;
+            this.English_RB.TabStop = true;
+            this.English_RB.Text = "English";
+            this.English_RB.UseVisualStyleBackColor = true;
+            this.English_RB.CheckedChanged += new System.EventHandler(this.English_RB_CheckedChanged);
+            // 
+            // Japanese_RB
+            // 
+            this.Japanese_RB.AutoSize = true;
+            this.Japanese_RB.Location = new System.Drawing.Point(585, 12);
+            this.Japanese_RB.Name = "Japanese_RB";
+            this.Japanese_RB.Size = new System.Drawing.Size(73, 20);
+            this.Japanese_RB.TabIndex = 27;
+            this.Japanese_RB.TabStop = true;
+            this.Japanese_RB.Text = "日本語";
+            this.Japanese_RB.UseVisualStyleBackColor = true;
+            this.Japanese_RB.CheckedChanged += new System.EventHandler(this.Japanese_RB_CheckedChanged);
+            // 
+            // Language_Label
+            // 
+            this.Language_Label.AutoSize = true;
+            this.Language_Label.Location = new System.Drawing.Point(395, 14);
+            this.Language_Label.Name = "Language_Label";
+            this.Language_Label.Size = new System.Drawing.Size(68, 16);
+            this.Language_Label.TabIndex = 28;
+            this.Language_Label.Text = "Language";
+            // 
             // Menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(786, 400);
+            this.ClientSize = new System.Drawing.Size(797, 469);
+            this.Controls.Add(this.Language_Label);
+            this.Controls.Add(this.Japanese_RB);
+            this.Controls.Add(this.English_RB);
             this.Controls.Add(this.CSVNew_Save);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.NewBookSave);
@@ -334,6 +373,9 @@
         private System.Windows.Forms.TextBox NewBookSave;
         private System.Windows.Forms.TextBox CSVNew_Save;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.RadioButton English_RB;
+        private System.Windows.Forms.RadioButton Japanese_RB;
+        private System.Windows.Forms.Label Language_Label;
     }
 }
 

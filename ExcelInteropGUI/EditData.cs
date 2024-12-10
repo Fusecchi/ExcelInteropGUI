@@ -69,7 +69,7 @@ namespace ExcelInteropGUI
 
             if (changed) 
             {
-                DialogResult ConfirmExit =  MessageBox.Show("Are you sure you want to close?, any change won't be saved",
+                DialogResult ConfirmExit =  MessageBox.Show("Are you sure you want to close? \n any change won't be saved",
                     "Unsaved Change",
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Warning);
