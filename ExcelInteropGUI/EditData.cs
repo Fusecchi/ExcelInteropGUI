@@ -19,10 +19,12 @@ namespace ExcelInteropGUI
         public static List<(int ChangedRow, int ChangedCol, object ChangedVal)> LocalLog = new List<(int ChangedRow, int ChangedCol, object ChangedVal)>();
         public List<EventLogEntry> EventLog = new List<EventLogEntry>();
         private bool changed;
+        public bool Japanese;
         public EditWin()
         {
             InitializeComponent();
             this.MaximizeBox = false;
+            this.ResizeRedraw = false;
         }
 
         private void EditTable_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -31,6 +33,10 @@ namespace ExcelInteropGUI
 
         private void EditWin_Load(object sender, EventArgs e)
         {
+            if (Japanese)
+                ChangeLanguage.change("ja-JP", this);
+            else
+                ChangeLanguage.change("en-EN", this);
             EditTable.DataSource = EditData;
             EditTable.AutoResizeColumn((int)DataGridViewAutoSizeColumnMode.AllCells);
             EditTable.Dock = DockStyle.Fill;
@@ -55,7 +61,7 @@ namespace ExcelInteropGUI
         {
             changed = false;
             DataSaved?.Invoke(EditData,LocalLog);
-            MessageBox.Show("Succesfully Saved");
+            MessageBox.Show(Languages.EditSave);
         }
 
         private void EditTable_CellValueChanged(object sender, DataGridViewCellEventArgs e)
@@ -69,7 +75,7 @@ namespace ExcelInteropGUI
 
             if (changed) 
             {
-                DialogResult ConfirmExit =  MessageBox.Show("Are you sure you want to close? \n any change won't be saved",
+                DialogResult ConfirmExit =  MessageBox.Show("Are you sure you want to close? \n Any change won't be saved",
                     "Unsaved Change",
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Warning);
@@ -105,6 +111,7 @@ namespace ExcelInteropGUI
         private void LogButton_Click(object sender, EventArgs e)
         {
             EditLog editLog = new EditLog();
+            editLog.Japanese = Japanese;
             editLog.Show();
             editLog.FormClosed += (s, args) => this.Show();
             editLog.SelectedAction += _SelectedAction;
@@ -116,7 +123,7 @@ namespace ExcelInteropGUI
             {
                 EditData.Rows[RB.ChangedRow][RB.ChangedCol] = RB.ChangedVal;
             }
-            SharedData.Log.RemoveRange(RollBack, SharedData.Log.Count);
+            SharedData.Log.RemoveRange(RollBack, (SharedData.Log.Count-RollBack));
 
         }
     }

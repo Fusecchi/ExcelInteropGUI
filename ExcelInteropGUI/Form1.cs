@@ -24,6 +24,9 @@ using Path = System.IO.Path;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using DateTime = System.DateTime;
 using System.Resources;
+using ExcelInteropGUI.Properties;
+using System.Globalization;
+
 
 
 namespace ExcelInteropGUI
@@ -56,10 +59,14 @@ namespace ExcelInteropGUI
         //Bool
         bool Converted;
         bool SourceFileClicked, TargetFileClicked;
+        public bool Japanese;
 
         //Action
         public Action<string> OnFunctionStart;
         public event Action editPresetClicked;
+
+        //Culture Info
+        CultureInfo culture;
 
         //List
         List<int> CellAddr = new List<int>();
@@ -74,7 +81,10 @@ namespace ExcelInteropGUI
         {
             InitializeComponent();
             this.MaximizeBox = false;
-            this.ResizeRedraw = false;
+            Japanese_RB.Checked = true;
+            Japanese = true;
+            this.EditPreset.Location = new System.Drawing.Point(MakePreset.Bounds.Right + 20, MakePreset.Bounds.Y);
+            this.DeleteBtn.Location = new System.Drawing.Point(EditPreset.Bounds.Right + 20, EditPreset.Bounds.Y);
         }
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -318,7 +328,15 @@ namespace ExcelInteropGUI
             selectedSheet = TargetSheet.SelectedIndex;
             ToSheet = PasteBook.Worksheet(selectedSheet + 1);
             To = ToSheet;
-            int dotpos = TargetName.Text.IndexOf('.');
+            int dotpos;
+            if (TargetName.Text.Contains('-'))
+            {
+                 dotpos= TargetName.Text.IndexOf('-');
+            }
+            else
+            {
+                dotpos = TargetName.Text.IndexOf('.');
+            }
             NewBookSave.Text = TargetName.Text.Substring(0, dotpos) + " - " + TargetSheet.Text;
         }
         private void TargetFile()
@@ -400,7 +418,7 @@ namespace ExcelInteropGUI
             if (PasteBook != null)
                 PasteBook.AddWorksheet(New_Sheet.Text);
             else
-                MessageBox.Show("No File Selected");
+                MessageBox.Show(Languages.SheetNotSelected);
         }
 
         //Edit the Data Button
@@ -411,6 +429,7 @@ namespace ExcelInteropGUI
                 //Hide this form and open the Edit Form
                 EditWin editwin = new EditWin();
                 editwin.EditData = EditData;
+                editwin.Japanese = Japanese;
                 //Subscribe to the event when the Editwin form Button Save is Clicked
                 editwin.DataSaved += editwin_Datasaved;
                 //Show this form when EditWin Form is closed
@@ -445,17 +464,17 @@ namespace ExcelInteropGUI
             {
                 if (SelectPreset.SelectedItem == null || string.IsNullOrWhiteSpace(SelectPreset.Text))
                 {
-                    MessageBox.Show("Preset isn't Selected!");
+                    MessageBox.Show(Languages.PresetNotSelected);
                     return;
                 }
                 if (TargetSheet.SelectedItem == null || string.IsNullOrWhiteSpace(TargetSheet.Text))
                 {
-                    MessageBox.Show("Sheet isn't Selected!");
+                    MessageBox.Show(Languages.SheetNotSelected);
                     return;
                 }
                 if (DataChecker != TargetType)
                 {
-                    MessageBox.Show("Selected File Isn't Compatible");
+                    MessageBox.Show(Languages.FileIsntCompatible);
                     return;
                 }
  
@@ -479,7 +498,7 @@ namespace ExcelInteropGUI
                         load.ShowDialog();
                     }
                 }
-                MessageBox.Show($"Operation Finished");
+                MessageBox.Show(Languages.OperationFinished);
             }
             catch (Exception ex)
             {
@@ -587,6 +606,7 @@ namespace ExcelInteropGUI
             
             OnFunctionStart?.Invoke("Making Table");
             Setting setting = new Setting(this);
+            setting.Japanese = Japanese;
             setting.DataTable = DataTable;
             setting.to = TargetName.Text;
             setting.from = FileName.Text;
@@ -611,7 +631,7 @@ namespace ExcelInteropGUI
                 makePreset_Click(sender, e);
             }
             else
-                MessageBox.Show("Preset isn't Selected");
+                MessageBox.Show(Languages.PresetNotSelected);
         }
         private void SelectPreset_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -634,12 +654,12 @@ namespace ExcelInteropGUI
         {
             if(SelectPreset.SelectedItem == null)
             {
-                MessageBox.Show("No File to be deleted!!");
+                MessageBox.Show(Languages.NoFiletoDelete);
             }
             else
             {
                 preset.Clear();
-                DialogResult deleteconfirmation = MessageBox.Show($"Are you sure you want to delete {SelectPreset.SelectedItem}",
+                DialogResult deleteconfirmation = MessageBox.Show(Languages.PresetNotSelected　+ SelectPreset.SelectedItem,
                     "Unsaved Change",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
@@ -787,15 +807,26 @@ namespace ExcelInteropGUI
         //Change Language
         private void English_RB_CheckedChanged(object sender, EventArgs e)
         {
-            if (English_RB.Checked) {
-                //ResourceManager rm = new ResourceManager(
-            //Language_Label.Text = Properties.Resources.label
+            if (English_RB.Checked)
+            {
+                Japanese = false;
+                ChangeLanguage.change("en-EN", this);
+                culture = new CultureInfo("en-US");
+                Thread.CurrentThread.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentUICulture = culture;
             }
         }
 
         private void Japanese_RB_CheckedChanged(object sender, EventArgs e)
         {
-
+            if (Japanese_RB.Checked)
+            {
+                Japanese = true;
+                ChangeLanguage.change("ja-JP",this);
+                culture = new CultureInfo("ja-JP");
+                Thread.CurrentThread.CurrentCulture = culture;
+                Thread.CurrentThread.CurrentUICulture = culture;
+            }
         }
     }
 }

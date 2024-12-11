@@ -117,7 +117,103 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Add_NewSheet.Text" xml:space="preserve">
+    <value>シート追加</value>
+  </data>
+  <data name="CloseBtn_Preset.Text" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="CLoseButton.Text" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="CloseEditLog.Text" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="Col" xml:space="preserve">
+    <value>列</value>
+  </data>
+  <data name="DataSelected.Text" xml:space="preserve">
+    <value>選択したファイル</value>
+  </data>
+  <data name="DeleteBtn.Text" xml:space="preserve">
+    <value>プリセット削除</value>
+  </data>
+  <data name="DeleteConfirmation" xml:space="preserve">
+    <value />
+  </data>
+  <data name="EditButton.Text" xml:space="preserve">
+    <value>編集</value>
+  </data>
+  <data name="EditPreset.Text" xml:space="preserve">
+    <value>プリセット編集</value>
+  </data>
+  <data name="EditSave" xml:space="preserve">
+    <value>保存されました</value>
+  </data>
+  <data name="EmptyNamePreset" xml:space="preserve">
+    <value />
+  </data>
+  <data name="FileIsntCompatible" xml:space="preserve">
+    <value />
+  </data>
+  <data name="label1.Text" xml:space="preserve">
+    <value>上書き保存</value>
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>上書き保存</value>
+  </data>
   <data name="Language_Label.Text" xml:space="preserve">
-    <value>Language</value>
+    <value>言語</value>
+  </data>
+  <data name="LogButton.Text" xml:space="preserve">
+    <value>履歴</value>
+  </data>
+  <data name="MakePreset.Text" xml:space="preserve">
+    <value>プリセット製作</value>
+  </data>
+  <data name="NoFiletoDelete" xml:space="preserve">
+    <value>プリセット選択されません</value>
+  </data>
+  <data name="PresetDeleteGroup" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="PresetLabel.Text" xml:space="preserve">
+    <value>プリセット</value>
+  </data>
+  <data name="PresetNotSelected" xml:space="preserve">
+    <value>プリセット選択されません</value>
+  </data>
+  <data name="ResetButton.Text" xml:space="preserve">
+    <value>リセット</value>
+  </data>
+  <data name="Rollback.Text" xml:space="preserve">
+    <value>復元</value>
+  </data>
+  <data name="Row" xml:space="preserve">
+    <value>行</value>
+  </data>
+  <data name="SaveAs_Preset_Label.Text" xml:space="preserve">
+    <value>上書き保存</value>
+  </data>
+  <data name="SaveEdit.Text" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Save_Preset_Button.Text" xml:space="preserve">
+    <value>プリセット保存</value>
+  </data>
+  <data name="SelectData.Text" xml:space="preserve">
+    <value>ファイル選択</value>
+  </data>
+  <data name="SelectSheet.Text" xml:space="preserve">
+    <value>シート選択</value>
+  </data>
+  <data name="SelectTarget.Text" xml:space="preserve">
+    <value>対象ファイル</value>
+  </data>
+  <data name="SendButton.Text" xml:space="preserve">
+    <value>挿入</value>
+  </data>
+  <data name="SheetNotSelected" xml:space="preserve">
+    <value>シート選択されません</value>
   </data>
 </root>

@@ -7,6 +7,7 @@ using System.ComponentModel.Design.Serialization;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,6 +30,7 @@ namespace ExcelInteropGUI
         private List<GroupBox> groupBoxes = new List<GroupBox>();
         private int BtnIterration = 0;
         public string from, to;
+        public bool Japanese;
 
         public Setting(Menu menu)
         {
@@ -37,6 +39,7 @@ namespace ExcelInteropGUI
             textBox1.Text = menu.Selected_json;
             this.FormClosed += (s, args) => menu.editPresetClicked -= EditPreset;
             this.MaximizeBox = false;
+            this.ResizeRedraw = false;
         }
 
 
@@ -50,7 +53,7 @@ namespace ExcelInteropGUI
             string json =   JsonConvert.SerializeObject(data, Formatting.Indented);
             if (string.IsNullOrEmpty(textBox1.Text))
             {
-                MessageBox.Show("File Name Can't be Empty");
+                MessageBox.Show(Languages.EmptyNamePreset);
                 return;
             }
             File.WriteAllText($"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset",textBox1.Text)}.json", json);
@@ -134,7 +137,7 @@ namespace ExcelInteropGUI
             {
                 Size = new Size(buttonWidth, buttonHeight),
                 Location = new System.Drawing.Point(((RbStr.Bounds.Right - RbInt.Bounds.Left)/2)+RbInt.Bounds.Left  , RbInt.Bounds.Bottom+GapX),
-                Text = "Delete"
+                Text = Languages.PresetDeleteGroup
             };
   
             groupBox.Controls.Add(button);
@@ -342,6 +345,10 @@ namespace ExcelInteropGUI
         {
             FromName.Text = from;
             ToName.Text = to;
+            if (Japanese)
+                ChangeLanguage.change("ja-JP", this);
+            else
+                ChangeLanguage.change("en-EN", this);
         }
         private void Setting_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -367,12 +374,9 @@ namespace ExcelInteropGUI
                         if(int.Parse(item.DataIndex.Last().ToString()) == i + 1){
                             if (control is Label Dlbl && Dlbl.Tag.ToString() == item.DataIndex)
                             {
-                                Dlbl.Text = "Row : " + item.PresetRow + " \n " +
-                                    "Col : " + item.PresetCol;
-                                Debug.WriteLine("-------");
-                                Debug.WriteLine(Dlbl.Tag);
-                                Debug.WriteLine($"Row : { item.PresetRow}");
-                                Debug.WriteLine($"Col : {item.PresetCol}");
+                                Dlbl.Text = Languages.Row+" : " + item.PresetRow + " \n " +
+                                    Languages.Col+" : " + item.PresetCol;
+
                             }
                         }
 

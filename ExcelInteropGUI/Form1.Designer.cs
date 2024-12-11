@@ -58,9 +58,11 @@
             // 
             // SelectData
             // 
+            this.SelectData.AutoSize = true;
+            this.SelectData.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.SelectData.Location = new System.Drawing.Point(39, 58);
             this.SelectData.Name = "SelectData";
-            this.SelectData.Size = new System.Drawing.Size(83, 31);
+            this.SelectData.Size = new System.Drawing.Size(80, 26);
             this.SelectData.TabIndex = 0;
             this.SelectData.Text = "Select File";
             this.SelectData.UseVisualStyleBackColor = true;
@@ -115,6 +117,7 @@
             // 
             // SelectTarget
             // 
+            this.SelectTarget.AutoSize = true;
             this.SelectTarget.Location = new System.Drawing.Point(398, 58);
             this.SelectTarget.Name = "SelectTarget";
             this.SelectTarget.Size = new System.Drawing.Size(104, 31);
@@ -174,9 +177,11 @@
             // 
             // MakePreset
             // 
-            this.MakePreset.Location = new System.Drawing.Point(39, 281);
+            this.MakePreset.AutoSize = true;
+            this.MakePreset.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.MakePreset.Location = new System.Drawing.Point(26, 281);
             this.MakePreset.Name = "MakePreset";
-            this.MakePreset.Size = new System.Drawing.Size(65, 45);
+            this.MakePreset.Size = new System.Drawing.Size(93, 26);
             this.MakePreset.TabIndex = 16;
             this.MakePreset.Text = "Make Preset";
             this.MakePreset.UseVisualStyleBackColor = true;
@@ -195,9 +200,11 @@
             // 
             // EditPreset
             // 
-            this.EditPreset.Location = new System.Drawing.Point(156, 281);
+            this.EditPreset.AutoSize = true;
+            this.EditPreset.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.EditPreset.Location = new System.Drawing.Point(119, 281);
             this.EditPreset.Name = "EditPreset";
-            this.EditPreset.Size = new System.Drawing.Size(70, 45);
+            this.EditPreset.Size = new System.Drawing.Size(82, 26);
             this.EditPreset.TabIndex = 17;
             this.EditPreset.Text = "Edit Preset";
             this.EditPreset.UseVisualStyleBackColor = true;
@@ -205,9 +212,11 @@
             // 
             // DeleteBtn
             // 
-            this.DeleteBtn.Location = new System.Drawing.Point(282, 281);
+            this.DeleteBtn.AutoSize = true;
+            this.DeleteBtn.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.DeleteBtn.Location = new System.Drawing.Point(201, 281);
             this.DeleteBtn.Name = "DeleteBtn";
-            this.DeleteBtn.Size = new System.Drawing.Size(70, 45);
+            this.DeleteBtn.Size = new System.Drawing.Size(99, 26);
             this.DeleteBtn.TabIndex = 18;
             this.DeleteBtn.Text = "Delete Preset";
             this.DeleteBtn.UseVisualStyleBackColor = true;

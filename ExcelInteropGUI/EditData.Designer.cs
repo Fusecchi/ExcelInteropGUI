@@ -87,6 +87,7 @@
             this.Controls.Add(this.CLoseButton);
             this.Controls.Add(this.SaveEdit);
             this.Controls.Add(this.EditTable);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "EditWin";
             this.Text = "Edit Data";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EditWin_FormClosing);

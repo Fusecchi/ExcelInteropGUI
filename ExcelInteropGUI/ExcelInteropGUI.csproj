@@ -378,12 +378,15 @@
     <Compile Include="EditLog.Designer.cs">
       <DependentUpon>EditLog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Properties\English.Designer.cs" />
-    <Compile Include="Properties\Japanese.Designer.cs" />
-    <Compile Include="Resource1.Designer.cs">
+    <Compile Include="Languages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>Resource1.resx</DependentUpon>
+      <DependentUpon>Languages.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Languages.ja-JP.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Languages.ja-JP.resx</DependentUpon>
     </Compile>
     <Compile Include="SelectData.cs">
       <SubType>Form</SubType>
@@ -415,9 +418,13 @@
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resource1.resx">
+    <EmbeddedResource Include="Languages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
+      <LastGenOutput>Languages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Languages.ja-JP.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Languages.ja-JP.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="SelectData.resx">
       <DependentUpon>SelectData.cs</DependentUpon>

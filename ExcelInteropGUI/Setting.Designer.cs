@@ -28,11 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.Save_Preset = new System.Windows.Forms.Button();
-            this.CloseBtn = new System.Windows.Forms.Button();
+            this.Save_Preset_Button = new System.Windows.Forms.Button();
+            this.CloseBtn_Preset = new System.Windows.Forms.Button();
             this.AddData = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.SaveAs_Preset_Label = new System.Windows.Forms.Label();
             this.FromLabel = new System.Windows.Forms.Label();
             this.ToLabel = new System.Windows.Forms.Label();
             this.FromName = new System.Windows.Forms.Label();
@@ -41,25 +41,25 @@
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
-            // Save_Preset
+            // Save_Preset_Button
             // 
-            this.Save_Preset.Location = new System.Drawing.Point(539, 396);
-            this.Save_Preset.Name = "Save_Preset";
-            this.Save_Preset.Size = new System.Drawing.Size(108, 42);
-            this.Save_Preset.TabIndex = 1;
-            this.Save_Preset.Text = "Save Preset";
-            this.Save_Preset.UseVisualStyleBackColor = true;
-            this.Save_Preset.Click += new System.EventHandler(this.button1_Click);
+            this.Save_Preset_Button.Location = new System.Drawing.Point(539, 396);
+            this.Save_Preset_Button.Name = "Save_Preset_Button";
+            this.Save_Preset_Button.Size = new System.Drawing.Size(108, 42);
+            this.Save_Preset_Button.TabIndex = 1;
+            this.Save_Preset_Button.Text = "Save Preset";
+            this.Save_Preset_Button.UseVisualStyleBackColor = true;
+            this.Save_Preset_Button.Click += new System.EventHandler(this.button1_Click);
             // 
-            // CloseBtn
+            // CloseBtn_Preset
             // 
-            this.CloseBtn.Location = new System.Drawing.Point(680, 396);
-            this.CloseBtn.Name = "CloseBtn";
-            this.CloseBtn.Size = new System.Drawing.Size(108, 42);
-            this.CloseBtn.TabIndex = 2;
-            this.CloseBtn.Text = "Close ";
-            this.CloseBtn.UseVisualStyleBackColor = true;
-            this.CloseBtn.Click += new System.EventHandler(this.CloseBtn_Click);
+            this.CloseBtn_Preset.Location = new System.Drawing.Point(680, 396);
+            this.CloseBtn_Preset.Name = "CloseBtn_Preset";
+            this.CloseBtn_Preset.Size = new System.Drawing.Size(108, 42);
+            this.CloseBtn_Preset.TabIndex = 2;
+            this.CloseBtn_Preset.Text = "Close ";
+            this.CloseBtn_Preset.UseVisualStyleBackColor = true;
+            this.CloseBtn_Preset.Click += new System.EventHandler(this.CloseBtn_Click);
             // 
             // AddData
             // 
@@ -78,14 +78,14 @@
             this.textBox1.Size = new System.Drawing.Size(194, 22);
             this.textBox1.TabIndex = 4;
             // 
-            // label1
+            // SaveAs_Preset_Label
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(235, 408);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(58, 16);
-            this.label1.TabIndex = 5;
-            this.label1.Text = "Save As";
+            this.SaveAs_Preset_Label.AutoSize = true;
+            this.SaveAs_Preset_Label.Location = new System.Drawing.Point(208, 409);
+            this.SaveAs_Preset_Label.Name = "SaveAs_Preset_Label";
+            this.SaveAs_Preset_Label.Size = new System.Drawing.Size(58, 16);
+            this.SaveAs_Preset_Label.TabIndex = 5;
+            this.SaveAs_Preset_Label.Text = "Save As";
             // 
             // FromLabel
             // 
@@ -143,11 +143,12 @@
             this.Controls.Add(this.FromName);
             this.Controls.Add(this.ToLabel);
             this.Controls.Add(this.FromLabel);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.SaveAs_Preset_Label);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.AddData);
-            this.Controls.Add(this.CloseBtn);
-            this.Controls.Add(this.Save_Preset);
+            this.Controls.Add(this.CloseBtn_Preset);
+            this.Controls.Add(this.Save_Preset_Button);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Setting";
             this.Text = "Setting";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Setting_FormClosed);
@@ -163,11 +164,11 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button Save_Preset;
-        private System.Windows.Forms.Button CloseBtn;
+        private System.Windows.Forms.Button Save_Preset_Button;
+        private System.Windows.Forms.Button CloseBtn_Preset;
         private System.Windows.Forms.Button AddData;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label SaveAs_Preset_Label;
         private System.Windows.Forms.Label FromLabel;
         private System.Windows.Forms.Label ToLabel;
         private System.Windows.Forms.Label FromName;
