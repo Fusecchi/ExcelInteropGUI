@@ -57,6 +57,7 @@ namespace ExcelInteropGUI
         string Tp;
         string[] PresetAddr;
         public string Selected_json;
+        string extension;
 
         //Bool
         bool Converted;
@@ -274,7 +275,7 @@ namespace ExcelInteropGUI
                 //Paste the value in A1
                 worksheet.Cell(1, 1).InsertTable(TempTableToConvert);
                 //Add xlsx Extension
-                string FilePath = Path.ChangeExtension(ofd.FileName, ".xlsx");
+                string FilePath = Path.ChangeExtension(ofd.FileName, "xlsx");
                 //Save the workbook
                 workbook.SaveAs(FilePath);
                 ConvertFromCSV = FilePath;
@@ -435,7 +436,7 @@ namespace ExcelInteropGUI
                     }
                     TargetTable.Rows.Add(datarow);
                 }
-
+                extension = Tn.Substring(Tn.LastIndexOf("."));
             }
         }
         private void Add_NewSheet_Click(object sender, EventArgs e)
@@ -606,12 +607,12 @@ namespace ExcelInteropGUI
             string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機械管理");
             if (Directory.Exists(FullPath))
             {
-                PasteBook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
+                PasteBook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{NewBookSave.Text}{extension}"));
             }
             else
             {
                 Directory.CreateDirectory(FullPath);
-                PasteBook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
+                PasteBook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{NewBookSave.Text}{extension}"));
             }
         }
         private void SaveBacktoCSV()
@@ -646,7 +647,7 @@ namespace ExcelInteropGUI
         }
         private void FolderBtn_Click(object sender, EventArgs e)
         {
-            Process.Start(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機械管理"), NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
+            Process.Start(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機械管理"), NewBookSave.Text, $"{NewBookSave.Text}{extension}"));
         }
 
         // edit/make Preset
