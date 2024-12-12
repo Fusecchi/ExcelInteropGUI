@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Add_NewSheet.Text" xml:space="preserve">
-    <value>シート追加</value>
+    <value>シートコピー</value>
   </data>
   <data name="CloseBtn_Preset.Text" xml:space="preserve">
     <value>閉じる</value>
@@ -132,14 +132,20 @@
   <data name="Col" xml:space="preserve">
     <value>列</value>
   </data>
+  <data name="ContaminationWarning" xml:space="preserve">
+    <value>異なる機械のデータが含まれています</value>
+  </data>
+  <data name="CopyName.Text" xml:space="preserve">
+    <value>コピー先シート名</value>
+  </data>
   <data name="DataSelected.Text" xml:space="preserve">
-    <value>選択したファイル</value>
+    <value>機械名</value>
   </data>
   <data name="DeleteBtn.Text" xml:space="preserve">
     <value>プリセット削除</value>
   </data>
   <data name="DeleteConfirmation" xml:space="preserve">
-    <value />
+    <value>以下の設定を削除しますがよろしいですか？</value>
   </data>
   <data name="EditButton.Text" xml:space="preserve">
     <value>編集</value>
@@ -151,16 +157,22 @@
     <value>保存されました</value>
   </data>
   <data name="EmptyNamePreset" xml:space="preserve">
-    <value />
+    <value>設定名が入力されていません</value>
   </data>
   <data name="FileIsntCompatible" xml:space="preserve">
+    <value>異なる機械のファイルが選択されています</value>
+  </data>
+  <data name="FillinConfirmation" xml:space="preserve">
+    <value>このまま登録します、よりしいですか？</value>
+  </data>
+  <data name="FillinConfirmationLabel" xml:space="preserve">
     <value />
   </data>
   <data name="label1.Text" xml:space="preserve">
-    <value>上書き保存</value>
+    <value>保存後のファイル名</value>
   </data>
   <data name="label2.Text" xml:space="preserve">
-    <value>上書き保存</value>
+    <value>保存後のファイル名</value>
   </data>
   <data name="Language_Label.Text" xml:space="preserve">
     <value>言語</value>
@@ -169,10 +181,13 @@
     <value>履歴</value>
   </data>
   <data name="MakePreset.Text" xml:space="preserve">
-    <value>プリセット製作</value>
+    <value>プリセット作成</value>
   </data>
   <data name="NoFiletoDelete" xml:space="preserve">
     <value>プリセット選択されません</value>
+  </data>
+  <data name="OperationFinished" xml:space="preserve">
+    <value>登録を完了しました</value>
   </data>
   <data name="PresetDeleteGroup" xml:space="preserve">
     <value>削除</value>
@@ -202,18 +217,21 @@
     <value>プリセット保存</value>
   </data>
   <data name="SelectData.Text" xml:space="preserve">
-    <value>ファイル選択</value>
+    <value>データファイル</value>
   </data>
   <data name="SelectSheet.Text" xml:space="preserve">
     <value>シート選択</value>
   </data>
   <data name="SelectTarget.Text" xml:space="preserve">
-    <value>対象ファイル</value>
+    <value>取込先ファイル</value>
   </data>
   <data name="SendButton.Text" xml:space="preserve">
-    <value>挿入</value>
+    <value>登録</value>
   </data>
   <data name="SheetNotSelected" xml:space="preserve">
-    <value>シート選択されません</value>
+    <value>シートが選択されません</value>
+  </data>
+  <data name="TargetFilenotSelected" xml:space="preserve">
+    <value>取込先ファイルが選択されていません</value>
   </data>
 </root>

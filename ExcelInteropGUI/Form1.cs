@@ -26,6 +26,8 @@ using DateTime = System.DateTime;
 using System.Resources;
 using ExcelInteropGUI.Properties;
 using System.Globalization;
+using Microsoft.Office.Interop.Excel;
+using Action = System.Action;
 
 
 
@@ -85,6 +87,29 @@ namespace ExcelInteropGUI
             Japanese = true;
             this.EditPreset.Location = new System.Drawing.Point(MakePreset.Bounds.Right + 20, MakePreset.Bounds.Y);
             this.DeleteBtn.Location = new System.Drawing.Point(EditPreset.Bounds.Right + 20, EditPreset.Bounds.Y);
+
+            this.DataSelected.Location = new System.Drawing.Point(SelectData.Location.X, SelectData.Location.Y+40);
+            this.FileName.Location = new System.Drawing.Point(SelectData.Bounds.Right + 20, SelectData.Location.Y);
+            this.FileType.Location = new System.Drawing.Point(FileName.Location.X, DataSelected.Location.Y);
+
+            this.label2.Location = new System.Drawing.Point(DataSelected.Location.X, FileType.Location.Y + 40);
+            this.CSVNew_Save.Location = new System.Drawing.Point(FileType.Location.X, label2.Location.Y );
+
+            this.PresetLabel.Location = new System.Drawing.Point(label2.Location.X, label2.Location.Y+40);
+            this.SelectPreset.Location = new System.Drawing.Point(CSVNew_Save.Location.X, PresetLabel.Location.Y);
+
+
+            this.SelectTarget.Location = new System.Drawing.Point(FileName.Bounds.Right + 30, SelectData.Location.Y);
+            this.TargetName.Location = new System.Drawing.Point(SelectTarget.Bounds.Right+20, SelectTarget.Location.Y);
+            this.SelectSheet.Location = new System.Drawing.Point(SelectTarget.Location.X, SelectTarget.Location.Y + 40);
+            this.TargetSheet.Location = new System.Drawing.Point(TargetName.Location.X, SelectSheet.Location.Y);
+            this.CopyName.Location = new System.Drawing.Point(SelectSheet.Location.X, SelectSheet.Location.Y + 40);
+            this.New_Sheet.Location = new System.Drawing.Point(TargetSheet.Location.X,CopyName.Location.Y);
+            this.Add_NewSheet.Location = new System.Drawing.Point(TargetSheet.Bounds.Right-this.Add_NewSheet.Width,this.Add_NewSheet.Location.Y);
+            this.label1.Location = new System.Drawing.Point(CopyName.Location.X, CopyName.Location.Y+40);
+            this.NewBookSave.Location = new System.Drawing.Point(New_Sheet.Location.X,label1.Location.Y);
+            this.FolderBtn.Location = new System.Drawing.Point(Add_NewSheet.Bounds.Right - this.FolderBtn.Width, NewBookSave.Location.Y + ((NewBookSave.Height/2) - (FolderBtn.Height/2)));
+
         }
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -178,7 +203,7 @@ namespace ExcelInteropGUI
                 {
                     if (!sheet.Cell(2, 1).Value.Equals(sheet.Cell(2 + i, 1).Value))
                     {
-                        MessageBox.Show($"Cell in: {sheet.Cell(2 + i, 1)} has value of: {sheet.Cell(2 + i, 1).Value}");
+                        MessageBox.Show(Languages.ContaminationWarning + "\n" + sheet.Cell(2 + i, 1) +":"+ sheet.Cell(2 + i, 1).Value);
                         fp = null;
                         SafeInvoke(FileName, () =>
                         {
@@ -416,9 +441,26 @@ namespace ExcelInteropGUI
         private void Add_NewSheet_Click(object sender, EventArgs e)
         {
             if (PasteBook != null)
-                PasteBook.AddWorksheet(New_Sheet.Text);
+            {
+                var copysheet = PasteBook.AddWorksheet(New_Sheet.Text);
+                var firstrow = To.FirstRowUsed().RowNumber();
+                var firscol = To.FirstColumnUsed().ColumnNumber();
+                List<int> cells = new List<int>();
+                foreach (var col in To.Columns())
+                {
+                    if (col.IsHidden)
+                    {
+                        cells.Add(col.ColumnNumber());
+                    }
+                }
+                To.RangeUsed().CopyTo(copysheet.Cell(firstrow,firscol));
+                foreach(var cell in cells)
+                {
+                    copysheet.Column(cell).Hide();
+                }
+            }
             else
-                MessageBox.Show(Languages.SheetNotSelected);
+                MessageBox.Show(Languages.TargetFilenotSelected);
         }
 
         //Edit the Data Button
@@ -460,50 +502,57 @@ namespace ExcelInteropGUI
         //Send data
         private void SendButton_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (SelectPreset.SelectedItem == null || string.IsNullOrWhiteSpace(SelectPreset.Text))
+            var confirmation = MessageBox.Show(Languages.FillinConfirmation, Languages.FillinConfirmationLabel, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirmation == DialogResult.Yes)
+                try
                 {
-                    MessageBox.Show(Languages.PresetNotSelected);
-                    return;
-                }
-                if (TargetSheet.SelectedItem == null || string.IsNullOrWhiteSpace(TargetSheet.Text))
-                {
-                    MessageBox.Show(Languages.SheetNotSelected);
-                    return;
-                }
-                if (DataChecker != TargetType)
-                {
-                    MessageBox.Show(Languages.FileIsntCompatible);
-                    return;
-                }
- 
-                using(LoadingBar load = new LoadingBar(TransferData, this))
-                {
-                    load.ShowDialog();
-                }
-                if (Converted)
-                {
-                    using (LoadingBar load = new LoadingBar(SaveBacktoCSV, this))
+                    if (SelectPreset.SelectedItem == null || string.IsNullOrWhiteSpace(SelectPreset.Text))
+                    {
+                        MessageBox.Show(Languages.PresetNotSelected);
+                        return;
+                    }
+                    if (TargetSheet.SelectedItem == null || string.IsNullOrWhiteSpace(TargetSheet.Text))
+                    {
+                        MessageBox.Show(Languages.SheetNotSelected);
+                        return;
+                    }
+                    if (DataChecker != TargetType)
+                    {
+                        MessageBox.Show(Languages.FileIsntCompatible);
+                        return;
+                    }
+
+                    using (LoadingBar load = new LoadingBar(TransferData, this))
                     {
                         load.ShowDialog();
                     }
-                }
-                else { 
-                using (LoadingBar load = new LoadingBar(()=> { int dotpos = TargetName.Text.LastIndexOf(".");
-                    string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理");
-                    workbook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{CSVNew_Save.Text}.xlsx"));
-                }, this))
+                    if (Converted)
                     {
-                        load.ShowDialog();
+                        using (LoadingBar load = new LoadingBar(SaveBacktoCSV, this))
+                        {
+                            load.ShowDialog();
+                        }
                     }
+                    else
+                    {
+                        using (LoadingBar load = new LoadingBar(() =>
+                        {
+                            int dotpos = TargetName.Text.LastIndexOf(".");
+                            string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理");
+                            workbook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{CSVNew_Save.Text}.xlsx"));
+                        }, this))
+                        {
+                            load.ShowDialog();
+                        }
+                    }
+                    MessageBox.Show(Languages.OperationFinished);
                 }
-                MessageBox.Show(Languages.OperationFinished);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            else
+                return;
         }
         private void TransferData()
         {
@@ -554,7 +603,7 @@ namespace ExcelInteropGUI
             }
 
             OnFunctionStart?.Invoke("Saving Book");
-            string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理");
+            string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機械管理");
             if (Directory.Exists(FullPath))
             {
                 PasteBook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
@@ -659,7 +708,7 @@ namespace ExcelInteropGUI
             else
             {
                 preset.Clear();
-                DialogResult deleteconfirmation = MessageBox.Show(Languages.PresetNotSelected　+ SelectPreset.SelectedItem,
+                DialogResult deleteconfirmation = MessageBox.Show(Languages.DeleteConfirmation + "\n" + SelectPreset.SelectedItem,
                     "Unsaved Change",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
@@ -757,6 +806,8 @@ namespace ExcelInteropGUI
                 EditButton.Enabled = false;
                 CSVNew_Save.Clear();
             });
+            SharedData.Log.Clear();
+            SharedData.NewValues.Clear();
             DataTable.Reset();
             CellAddr.Clear();
             Converted = false;
@@ -778,6 +829,21 @@ namespace ExcelInteropGUI
             PasteBook = null;
             TargetFileClicked = false;
             TargetTable.Reset();
+        }
+
+        private void PresetLabel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void FileType_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
         //Update the UI within multithread

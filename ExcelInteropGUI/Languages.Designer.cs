@@ -97,6 +97,24 @@ namespace ExcelInteropGUI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Other data is Detected at.
+        /// </summary>
+        internal static string ContaminationWarning {
+            get {
+                return ResourceManager.GetString("ContaminationWarning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sheet Name.
+        /// </summary>
+        internal static string CopyName_Text {
+            get {
+                return ResourceManager.GetString("CopyName.Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Data Selected.
         /// </summary>
         internal static string DataSelected_Text {
@@ -115,7 +133,7 @@ namespace ExcelInteropGUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Are you sure you want to delete.
+        ///   Looks up a localized string similar to Are you sure you want to delete the Setting Below.
         /// </summary>
         internal static string DeleteConfirmation {
             get {
@@ -165,6 +183,24 @@ namespace ExcelInteropGUI {
         internal static string FileIsntCompatible {
             get {
                 return ResourceManager.GetString("FileIsntCompatible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure?.
+        /// </summary>
+        internal static string FillinConfirmation {
+            get {
+                return ResourceManager.GetString("FillinConfirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string FillinConfirmationLabel {
+            get {
+                return ResourceManager.GetString("FillinConfirmationLabel", resourceCulture);
             }
         }
         
@@ -336,6 +372,15 @@ namespace ExcelInteropGUI {
         internal static string SheetNotSelected {
             get {
                 return ResourceManager.GetString("SheetNotSelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Target File not Selected.
+        /// </summary>
+        internal static string TargetFilenotSelected {
+            get {
+                return ResourceManager.GetString("TargetFilenotSelected", resourceCulture);
             }
         }
     }

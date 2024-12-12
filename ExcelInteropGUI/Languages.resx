@@ -129,6 +129,12 @@
   <data name="Col" xml:space="preserve">
     <value>Col</value>
   </data>
+  <data name="ContaminationWarning" xml:space="preserve">
+    <value>Other data is Detected at</value>
+  </data>
+  <data name="CopyName.Text" xml:space="preserve">
+    <value>Sheet Name</value>
+  </data>
   <data name="DataSelected.Text" xml:space="preserve">
     <value>Data Selected</value>
   </data>
@@ -136,7 +142,7 @@
     <value>Delete Preset</value>
   </data>
   <data name="DeleteConfirmation" xml:space="preserve">
-    <value>Are you sure you want to delete</value>
+    <value>Are you sure you want to delete the Setting Below</value>
   </data>
   <data name="EditButton.Text" xml:space="preserve">
     <value>Edit Preset</value>
@@ -152,6 +158,12 @@
   </data>
   <data name="FileIsntCompatible" xml:space="preserve">
     <value>Selected FIle Isn't Compatible</value>
+  </data>
+  <data name="FillinConfirmation" xml:space="preserve">
+    <value>Are you sure?</value>
+  </data>
+  <data name="FillinConfirmationLabel" xml:space="preserve">
+    <value />
   </data>
   <data name="label1.Text" xml:space="preserve">
     <value>Save As</value>
@@ -209,5 +221,8 @@
   </data>
   <data name="SheetNotSelected" xml:space="preserve">
     <value>Sheet Isn't Selected</value>
+  </data>
+  <data name="TargetFilenotSelected" xml:space="preserve">
+    <value>Target File not Selected</value>
   </data>
 </root>
