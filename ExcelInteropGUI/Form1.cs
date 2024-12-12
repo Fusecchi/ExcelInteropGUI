@@ -538,7 +538,7 @@ namespace ExcelInteropGUI
                         using (LoadingBar load = new LoadingBar(() =>
                         {
                             int dotpos = TargetName.Text.LastIndexOf(".");
-                            string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理");
+                            string FullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機械管理");
                             workbook.SaveAs(Path.Combine(FullPath, NewBookSave.Text, $"{CSVNew_Save.Text}.xlsx"));
                         }, this))
                         {
@@ -633,7 +633,7 @@ namespace ExcelInteropGUI
             }
             string BatchDate = ToSheet.Name;
             int dotPos = ConvertFromCSV.LastIndexOf("\\");
-            string doc = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理");
+            string doc = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機械管理");
             if(!Directory.Exists(doc))
                 Directory.CreateDirectory(doc);
             string fullpath = Path.Combine(doc, NewBookSave.Text, $"{BatchDate}.CSV");
@@ -646,7 +646,7 @@ namespace ExcelInteropGUI
         }
         private void FolderBtn_Click(object sender, EventArgs e)
         {
-            Process.Start(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機払出管理"), NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
+            Process.Start(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機械管理"), NewBookSave.Text, $"{NewBookSave.Text}.xlsx"));
         }
 
         // edit/make Preset

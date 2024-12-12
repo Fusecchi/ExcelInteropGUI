@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Menu));
             this.SelectData = new System.Windows.Forms.Button();
             this.DataSelected = new System.Windows.Forms.Label();
             this.FileType = new System.Windows.Forms.TextBox();
@@ -364,6 +365,7 @@
             this.Controls.Add(this.FileType);
             this.Controls.Add(this.DataSelected);
             this.Controls.Add(this.SelectData);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Menu";
             this.Text = "Menu";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
