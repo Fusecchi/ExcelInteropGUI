@@ -225,4 +225,10 @@
   <data name="TargetFilenotSelected" xml:space="preserve">
     <value>Target File not Selected</value>
   </data>
+  <data name="UnsavedEdit" xml:space="preserve">
+    <value>Unsaved data detected</value>
+  </data>
+  <data name="UnsavedEditConf" xml:space="preserve">
+    <value>Unsaved data won't be saved</value>
+  </data>
 </root>

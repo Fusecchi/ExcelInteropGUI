@@ -383,5 +383,23 @@ namespace ExcelInteropGUI {
                 return ResourceManager.GetString("TargetFilenotSelected", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsaved data detected.
+        /// </summary>
+        internal static string UnsavedEdit {
+            get {
+                return ResourceManager.GetString("UnsavedEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsaved data won&apos;t be saved.
+        /// </summary>
+        internal static string UnsavedEditConf {
+            get {
+                return ResourceManager.GetString("UnsavedEditConf", resourceCulture);
+            }
+        }
     }
 }

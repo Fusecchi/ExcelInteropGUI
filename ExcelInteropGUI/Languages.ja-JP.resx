@@ -234,4 +234,10 @@
   <data name="TargetFilenotSelected" xml:space="preserve">
     <value>取込先ファイルが選択されていません</value>
   </data>
+  <data name="UnsavedEdit" xml:space="preserve">
+    <value>変更内容を保存せずに閉じてよろしいですか？</value>
+  </data>
+  <data name="UnsavedEditConf" xml:space="preserve">
+    <value>このまま閉じると変更内容は破棄されます</value>
+  </data>
 </root>

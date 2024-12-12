@@ -145,8 +145,9 @@ namespace ExcelInteropGUI
                     {
                         load.ShowDialog(this);
                     }
+                    CSVNew_Save.Text = FileName.Text.Substring(0, FileName.Text.LastIndexOf(".")) + " - " + DateTime.Now.ToString("yyyy-MM-dd");
                 }
-                CSVNew_Save.Text = FileName.Text.Substring(0 , FileName.Text.LastIndexOf(".")) + " - "+DateTime.Now.ToString("yyyy-MM-dd");
+
             }
             catch (Exception ex)
             {
