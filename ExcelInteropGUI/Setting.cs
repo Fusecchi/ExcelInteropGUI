@@ -40,6 +40,7 @@ namespace ExcelInteropGUI
             this.FormClosed += (s, args) => menu.editPresetClicked -= EditPreset;
             this.MaximizeBox = false;
             this.ResizeRedraw = false;
+
         }
 
 

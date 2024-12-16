@@ -70,6 +70,15 @@ namespace ExcelInteropGUI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add Data.
+        /// </summary>
+        internal static string AddData {
+            get {
+                return ResourceManager.GetString("AddData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Close.
         /// </summary>
         internal static string CloseBtn_Preset_Text {

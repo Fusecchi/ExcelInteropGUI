@@ -45,11 +45,11 @@ namespace ExcelInteropGUI
         public System.Data.DataTable TargetTable { get; set; } = new System.Data.DataTable();
 
         //INT Variable
-        int selectedSheet =1;
+        int selectedSheet = 1;
         int DataChecker, TargetType;
 
         //Closed XML Variable
-        IXLWorksheet From, To,sheet, ToSheet;
+        IXLWorksheet From, To, sheet, ToSheet;
         XLWorkbook workbook, PasteBook;
 
         //String
@@ -63,6 +63,7 @@ namespace ExcelInteropGUI
         bool Converted;
         bool SourceFileClicked, TargetFileClicked;
         public bool Japanese;
+        bool PresetEdit = false;
 
         //Action
         public Action<string> OnFunctionStart;
@@ -89,36 +90,36 @@ namespace ExcelInteropGUI
             this.EditPreset.Location = new System.Drawing.Point(MakePreset.Bounds.Right + 20, MakePreset.Bounds.Y);
             this.DeleteBtn.Location = new System.Drawing.Point(EditPreset.Bounds.Right + 20, EditPreset.Bounds.Y);
 
-            this.DataSelected.Location = new System.Drawing.Point(SelectData.Location.X, SelectData.Location.Y+40);
+            this.DataSelected.Location = new System.Drawing.Point(SelectData.Location.X, SelectData.Location.Y + 40);
             this.FileName.Location = new System.Drawing.Point(SelectData.Bounds.Right + 20, SelectData.Location.Y);
             this.FileType.Location = new System.Drawing.Point(FileName.Location.X, DataSelected.Location.Y);
 
             this.label2.Location = new System.Drawing.Point(DataSelected.Location.X, FileType.Location.Y + 40);
-            this.CSVNew_Save.Location = new System.Drawing.Point(FileType.Location.X, label2.Location.Y );
+            this.CSVNew_Save.Location = new System.Drawing.Point(FileType.Location.X, label2.Location.Y);
 
-            this.PresetLabel.Location = new System.Drawing.Point(label2.Location.X, label2.Location.Y+40);
+            this.PresetLabel.Location = new System.Drawing.Point(label2.Location.X, label2.Location.Y + 40);
             this.SelectPreset.Location = new System.Drawing.Point(CSVNew_Save.Location.X, PresetLabel.Location.Y);
 
 
             this.SelectTarget.Location = new System.Drawing.Point(FileName.Bounds.Right + 30, SelectData.Location.Y);
-            this.TargetName.Location = new System.Drawing.Point(SelectTarget.Bounds.Right+20, SelectTarget.Location.Y);
+            this.TargetName.Location = new System.Drawing.Point(SelectTarget.Bounds.Right + 20, SelectTarget.Location.Y);
             this.SelectSheet.Location = new System.Drawing.Point(SelectTarget.Location.X, SelectTarget.Location.Y + 40);
             this.TargetSheet.Location = new System.Drawing.Point(TargetName.Location.X, SelectSheet.Location.Y);
             this.CopyName.Location = new System.Drawing.Point(SelectSheet.Location.X, SelectSheet.Location.Y + 40);
-            this.New_Sheet.Location = new System.Drawing.Point(TargetSheet.Location.X,CopyName.Location.Y);
-            this.Add_NewSheet.Location = new System.Drawing.Point(TargetSheet.Bounds.Right-this.Add_NewSheet.Width,this.Add_NewSheet.Location.Y);
-            this.label1.Location = new System.Drawing.Point(CopyName.Location.X, CopyName.Location.Y+40);
-            this.NewBookSave.Location = new System.Drawing.Point(New_Sheet.Location.X,label1.Location.Y);
-            this.FolderBtn.Location = new System.Drawing.Point(Add_NewSheet.Bounds.Right - this.FolderBtn.Width, NewBookSave.Location.Y + ((NewBookSave.Height/2) - (FolderBtn.Height/2)));
+            this.New_Sheet.Location = new System.Drawing.Point(TargetSheet.Location.X, CopyName.Location.Y);
+            this.Add_NewSheet.Location = new System.Drawing.Point(TargetSheet.Bounds.Right - this.Add_NewSheet.Width, this.Add_NewSheet.Location.Y);
+            this.label1.Location = new System.Drawing.Point(CopyName.Location.X, CopyName.Location.Y + 40);
+            this.NewBookSave.Location = new System.Drawing.Point(New_Sheet.Location.X, label1.Location.Y);
+            this.FolderBtn.Location = new System.Drawing.Point(Add_NewSheet.Bounds.Right - this.FolderBtn.Width, NewBookSave.Location.Y + ((NewBookSave.Height / 2) - (FolderBtn.Height / 2)));
 
         }
         private void Form1_Load(object sender, EventArgs e)
         {
             SendButton.Enabled = false;
             EditButton.Enabled = false;
-            PresetAddr = Directory.GetFiles( Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Preset"), "*.json");
+            PresetAddr = Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Preset"), "*.json");
             foreach (string p in PresetAddr) {
-                SelectPreset.Items.Add( Path.GetFileName(p));
+                SelectPreset.Items.Add(Path.GetFileName(p));
             }
         }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -205,7 +206,7 @@ namespace ExcelInteropGUI
                 {
                     if (!sheet.Cell(2, 1).Value.Equals(sheet.Cell(2 + i, 1).Value))
                     {
-                        MessageBox.Show(Languages.ContaminationWarning + "\n" + sheet.Cell(2 + i, 1) +":"+ sheet.Cell(2 + i, 1).Value);
+                        MessageBox.Show(Languages.ContaminationWarning + "\n" + sheet.Cell(2 + i, 1) + ":" + sheet.Cell(2 + i, 1).Value);
                         fp = null;
                         SafeInvoke(FileName, () =>
                         {
@@ -358,7 +359,7 @@ namespace ExcelInteropGUI
             int dotpos;
             if (TargetName.Text.Contains('-'))
             {
-                 dotpos= TargetName.Text.IndexOf('-');
+                dotpos = TargetName.Text.IndexOf('-');
             }
             else
             {
@@ -442,27 +443,40 @@ namespace ExcelInteropGUI
         }
         private void Add_NewSheet_Click(object sender, EventArgs e)
         {
-            if (PasteBook != null)
-            {
-                var copysheet = PasteBook.AddWorksheet(New_Sheet.Text);
-                var firstrow = To.FirstRowUsed().RowNumber();
-                var firscol = To.FirstColumnUsed().ColumnNumber();
-                List<int> cells = new List<int>();
-                foreach (var col in To.Columns())
+            if (SelectPreset.SelectedItem != null || !string.IsNullOrWhiteSpace(SelectPreset.Text))
+                if (PasteBook != null)
                 {
-                    if (col.IsHidden)
+                    var copysheet = PasteBook.AddWorksheet(New_Sheet.Text);
+                    var firstrow = To.FirstRowUsed().RowNumber();
+                    var firscol = To.FirstColumnUsed().ColumnNumber();
+                    List<int> cells = new List<int>();
+                    foreach (var col in To.Columns())
                     {
-                        cells.Add(col.ColumnNumber());
+                        if (col.IsHidden)
+                        {
+                            cells.Add(col.ColumnNumber());
+                        }
+                    }
+                    To.RangeUsed().CopyTo(copysheet.Cell(firstrow, firscol));
+                    foreach (var cell in cells)
+                    {
+                        copysheet.Column(cell).Hide();
+                    }
+                    for (int row = 0; row < To.LastRowUsed().RowNumber(); row++)
+                    {
+                        for (int i = 0; i < GetAddrData.Count; i++)
+                        {
+                            copysheet.Cell(GetAddrTarget[i].PresetRow+row, GetAddrTarget[i].PresetCol).Clear();
+                        }
                     }
                 }
-                To.RangeUsed().CopyTo(copysheet.Cell(firstrow,firscol));
-                foreach(var cell in cells)
-                {
-                    copysheet.Column(cell).Hide();
-                }
-            }
+        
             else
                 MessageBox.Show(Languages.TargetFilenotSelected);
+            else {
+                    MessageBox.Show(Languages.PresetNotSelected);
+                    return;
+            } 
         }
 
         //Edit the Data Button
@@ -638,7 +652,7 @@ namespace ExcelInteropGUI
             string doc = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "レーザー機械管理");
             if(!Directory.Exists(doc))
                 Directory.CreateDirectory(doc);
-            string fullpath = Path.Combine(doc, NewBookSave.Text, $"{BatchDate}.CSV");
+            string fullpath = Path.Combine(doc, CSVNew_Save.Text, $"{BatchDate}.CSV");
             File.WriteAllText(fullpath, CSVConv.ToString());
             if (File.Exists(ConvertFromCSV))
             {
@@ -662,15 +676,14 @@ namespace ExcelInteropGUI
             setting.to = TargetName.Text;
             setting.from = FileName.Text;
             setting.TargetTable = TargetTable;
-            setting.Preset = preset;
             setting.datahandletoRtn = dataHandle;
+            if(PresetEdit)
+                setting.Preset = preset;
             setting.FormClosed += (s, args) => { 
                 this.Show();
                 SelectPreset_SelectedIndexChanged(null, EventArgs.Empty);
+                PresetEdit = false;
             };
-            if (!string.IsNullOrEmpty(TargetName.Text) && preset != null && !string.IsNullOrEmpty(FileType.Text))
-                editPresetClicked?.Invoke();
-            setting.FormClosed += (s, args) => this.Show();
             setting.Show();
             this.Hide();
 
@@ -679,7 +692,14 @@ namespace ExcelInteropGUI
         {
             if (SelectPreset.SelectedItem != null || !string.IsNullOrWhiteSpace(SelectPreset.Text))
             {
-                makePreset_Click(sender, e);
+                if (!string.IsNullOrEmpty(TargetName.Text) && preset != null && !string.IsNullOrEmpty(FileType.Text))
+                {
+                    PresetEdit = true;
+                    makePreset_Click(sender, e);
+                    editPresetClicked?.Invoke();
+                }
+                else
+                    return;
             }
             else
                 MessageBox.Show(Languages.PresetNotSelected);
@@ -832,17 +852,14 @@ namespace ExcelInteropGUI
             TargetFileClicked = false;
             TargetTable.Reset();
         }
-
         private void PresetLabel_Click(object sender, EventArgs e)
         {
 
         }
-
         private void label2_Click(object sender, EventArgs e)
         {
 
         }
-
         private void FileType_TextChanged(object sender, EventArgs e)
         {
 
