@@ -47,6 +47,7 @@
             this.EditTable.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.EditTable_CellBeginEdit);
             this.EditTable.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.EditTable_CellContentClick);
             this.EditTable.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.EditTable_CellValueChanged);
+            this.EditTable.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.EditTable_UserDeletingRow);
             // 
             // SaveEdit
             // 

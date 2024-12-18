@@ -16,10 +16,14 @@ namespace ExcelInteropGUI
     {
         public DataTable EditData { get; set; }
         public event Action<DataTable, List<(int ChangedRow, int ChangedCol, object ChangedVal)>> DataSaved;
+        public event Action<int , int > Rowdel;
+        List<int> DeletePos = new List<int>();
         public static List<(int ChangedRow, int ChangedCol, object ChangedVal)> LocalLog = new List<(int ChangedRow, int ChangedCol, object ChangedVal)>();
         public List<EventLogEntry> EventLog = new List<EventLogEntry>();
+        public List<object> DeletedRowValue = new List<object>();
         private bool changed;
         public bool Japanese;
+        int Itteration = -1;
         public EditWin()
         {
             InitializeComponent();
@@ -29,6 +33,7 @@ namespace ExcelInteropGUI
 
         private void EditTable_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+
         }
 
         private void EditWin_Load(object sender, EventArgs e)
@@ -37,7 +42,9 @@ namespace ExcelInteropGUI
                 ChangeLanguage.change("ja-JP", this);
             else
                 ChangeLanguage.change("en-EN", this);
+            EditTable.UserDeletingRow -= EditTable_RowsRemoved;
             EditTable.DataSource = EditData;
+            EditTable.UserDeletingRow += EditTable_RowsRemoved;
             EditTable.AutoResizeColumn((int)DataGridViewAutoSizeColumnMode.AllCells);
             EditTable.Dock = DockStyle.Fill;
             EditTable.PerformLayout();
@@ -81,10 +88,24 @@ namespace ExcelInteropGUI
                     MessageBoxIcon.Warning);
                 switch (ConfirmExit) { 
                     case DialogResult.Yes:
-                        foreach(var RollBack in LocalLog)
+                        for (int i = 0; i < DeletePos.Count; i++)
+                        {
+                            int restoreIndex = DeletePos[i];
+                            List<object> rowValues = new List<object>();
+                            DataRow newRow = EditData.NewRow();
+                            for (int j = 0; j < rowValues.Count; j++)
+                            {
+                                newRow[j] = rowValues[j];
+                            }
+
+                            EditData.Rows.InsertAt(newRow, restoreIndex);
+
+                        }
+                        foreach (var RollBack in LocalLog)
                         {
                             EditData.Rows[RollBack.ChangedRow][RollBack.ChangedCol] = RollBack.ChangedVal;
                         }
+
                         break;
                     case DialogResult.No:
                         SaveEdit_Click(sender, e);
@@ -124,6 +145,25 @@ namespace ExcelInteropGUI
                 EditData.Rows[RB.ChangedRow][RB.ChangedCol] = RB.ChangedVal;
             }
             SharedData.Log.RemoveRange(RollBack, (SharedData.Log.Count-RollBack));
+
+        }
+
+        private void EditTable_RowsRemoved(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            var conf = MessageBox.Show(Languages.RowDel, "Row Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            switch (conf) { 
+                case DialogResult.Yes:
+                    Itteration++;
+                    Rowdel?.Invoke(e.Row.Index, Itteration);
+                    break;
+                case DialogResult.No:
+                    e.Cancel = true;
+                    break;
+            }
+        }
+
+        private void EditTable_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
 
         }
     }

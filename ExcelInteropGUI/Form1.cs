@@ -491,6 +491,7 @@ namespace ExcelInteropGUI
                 //Subscribe to the event when the Editwin form Button Save is Clicked
                 editwin.DataSaved += editwin_Datasaved;
                 //Show this form when EditWin Form is closed
+                editwin.Rowdel += Editwin_Rowdel;
                 editwin.FormClosed += (s, args) => this.Show();
                 editwin.Show();
                 this.Hide();
@@ -501,6 +502,13 @@ namespace ExcelInteropGUI
                 return;
             }
         }
+
+        private void Editwin_Rowdel(int item, int itteration)
+        {
+            From.Row(CellAddr[item]-itteration).Delete();
+            CellAddr.RemoveAt(item);
+        }
+
         private void editwin_Datasaved(System.Data.DataTable updatedTable, List<(int ChangedRow, int ChangedCol, object ChangedVal)> values)
         {
             //This Function will run when the event is raised
@@ -508,9 +516,7 @@ namespace ExcelInteropGUI
             EditData = updatedTable;
             foreach(var item in values)
             {
-                Debug.WriteLine("Before: "+From.Cell(CellAddr[item.ChangedRow], item.ChangedCol+1).Value);
                 From.Cell(CellAddr[item.ChangedRow], item.ChangedCol+1).Value = EditData.Rows[item.ChangedRow][item.ChangedCol]?.ToString();
-                Debug.WriteLine("After: " + From.Cell(CellAddr[item.ChangedRow], item.ChangedCol+1).Value);
             }
 
         }
