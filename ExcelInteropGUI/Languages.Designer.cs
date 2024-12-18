@@ -322,6 +322,15 @@ namespace ExcelInteropGUI {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are You Sure You Want to Delete This Row.
+        /// </summary>
+        internal static string RowDel {
+            get {
+                return ResourceManager.GetString("RowDel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save Preset.
         /// </summary>
         internal static string Save_Preset_Button_Text {

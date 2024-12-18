@@ -204,6 +204,9 @@
   <data name="Row" xml:space="preserve">
     <value>Row</value>
   </data>
+  <data name="RowDel" xml:space="preserve">
+    <value>Are You Sure You Want to Delete This Row</value>
+  </data>
   <data name="SaveAs_Preset_Label" xml:space="preserve">
     <value>Save As</value>
   </data>
